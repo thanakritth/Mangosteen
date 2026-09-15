@@ -1,0 +1,19 @@
+# PlatformIO build artifacts
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.keras
+*.h5
+
+# Large zip archives
+*.zip
+
+# VS Code settings
+.vscode/
+*.code-workspace
