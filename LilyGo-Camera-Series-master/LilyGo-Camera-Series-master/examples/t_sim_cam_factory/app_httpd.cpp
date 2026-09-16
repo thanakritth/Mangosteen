@@ -19,6 +19,7 @@
 #include "driver/ledc.h"
 #include "sdkconfig.h"
 #include "camera_index.h"
+#include "mangosteen_html.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1136,6 +1137,14 @@ static esp_err_t win_handler(httpd_req_t *req)
     return httpd_resp_send(req, NULL, 0);
 }
 
+static esp_err_t mangosteen_index_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    return httpd_resp_send(req, (const char *)mangosteen_html_gz, mangosteen_html_gz_len);
+}
+
 static esp_err_t index_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -1162,6 +1171,12 @@ void startCameraServer()
 
     httpd_uri_t index_uri = {
         .uri = "/",
+        .method = HTTP_GET,
+        .handler = mangosteen_index_handler,
+        .user_ctx = NULL};
+
+    httpd_uri_t settings_uri = {
+        .uri = "/settings",
         .method = HTTP_GET,
         .handler = index_handler,
         .user_ctx = NULL};
@@ -1238,6 +1253,7 @@ void startCameraServer()
     if (httpd_start(&camera_httpd, &config) == ESP_OK)
     {
         httpd_register_uri_handler(camera_httpd, &index_uri);
+        httpd_register_uri_handler(camera_httpd, &settings_uri);
         httpd_register_uri_handler(camera_httpd, &cmd_uri);
         httpd_register_uri_handler(camera_httpd, &status_uri);
         httpd_register_uri_handler(camera_httpd, &capture_uri);

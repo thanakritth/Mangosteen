@@ -1,8 +1,8 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define WIFI_SSID        "D House_2.4G"
-#define WIFI_PASSWORD    "15299999"
+#define WIFI_SSID        "TEE"
+#define WIFI_PASSWORD    "12345678"
 
 #define WIFI_AP_SSID     "T-SIMCAM-teepakorn290948"
 #define WIFI_AP_PASSWORD "12345678"
