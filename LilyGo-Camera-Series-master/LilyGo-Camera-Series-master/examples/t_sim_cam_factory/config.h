@@ -4,7 +4,7 @@
 #define WIFI_SSID        "TEE"
 #define WIFI_PASSWORD    "12345678"
 
-#define WIFI_AP_SSID     "T-SIMCAM-teepakorn290948"
+#define WIFI_AP_SSID     "T-SIMCAM-Mangosteen"
 #define WIFI_AP_PASSWORD "12345678"
 
 // Corresponding version of board screen printing

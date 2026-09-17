@@ -208,69 +208,40 @@ void check_sound(void)
 
 void wifi_scan_connect(void)
 {
-    WiFi.disconnect();
-    WiFi.mode(WIFI_STA);
+    Serial.println("\n[WiFi] Initializing Wi-Fi...");
+    WiFi.disconnect(true);
     delay(100);
-    Serial.println("scan start");
 
-    // WiFi.scanNetworks will return the number of networks found
-    int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0) {
-        Serial.println("no networks found");
-    } else {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.SSID(i));
-            Serial.print(" (");
-            Serial.print(WiFi.RSSI(i));
-            Serial.print(")");
-            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-            delay(10);
+    // Start SoftAP Hotspot immediately so iPad can connect without delay!
+    WiFi.mode(WIFI_MODE_APSTA);
+    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD);
+
+    Serial.println("\n=========================================");
+    Serial.printf("  Hotspot AP Active: %s\n", WIFI_AP_SSID);
+    Serial.printf("  Hotspot Password:  %s\n", WIFI_AP_PASSWORD);
+    Serial.print("  Connect iPad & open: http://");
+    Serial.println(WiFi.softAPIP());
+    Serial.println("=========================================\n");
+
+    // Try connecting to station Wi-Fi if configured, with 4-second timeout (non-blocking)
+    if (String(WIFI_SSID) != "" && String(WIFI_SSID) != "NETTEE") {
+        Serial.printf("[WiFi] Attempting to connect to STA: %s ...\n", WIFI_SSID);
+        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+        int timeout = 40; // 4 seconds max
+        while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+            Serial.print(".");
+            vTaskDelay(100);
+            timeout--;
         }
-    }
-    Serial.println("");
-    WiFi.disconnect();
-
-    uint32_t last_m = millis();
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
-        vTaskDelay(100);
-    }
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-    Serial.printf("\r\n-- wifi connect success! --\r\n");
-    Serial.printf("It takes %d milliseconds\r\n", millis() - last_m);
-    delay(100);
-    String rsp;
-    bool is_get_http = false;
-    do {
-        http_client.begin("https://www.baidu.com/");
-        int http_code = http_client.GET();
-        Serial.println(http_code);
-        if (http_code > 0) {
-            Serial.printf("HTTP get code: %d\n", http_code);
-            if (http_code == HTTP_CODE_OK) {
-                rsp = http_client.getString();
-                Serial.println(rsp);
-                is_get_http = true;
-            } else {
-                Serial.printf("fail to get http client,code:%d\n", http_code);
-            }
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("\n[WiFi] Connected to STA! Local IP: ");
+            Serial.println(WiFi.localIP());
         } else {
-            Serial.println("HTTP GET failed. Try again");
+            Serial.println("\n[WiFi] STA connection timeout. Continuing in Standalone Hotspot mode.");
         }
-        delay(3000);
-    } while (!is_get_http);
-    // WiFi.disconnect();
-    http_client.end();
+    } else {
+        Serial.println("[WiFi] Running in Standalone Hotspot mode.");
+    }
 }
 
 void pcie_test(void)
@@ -364,18 +335,17 @@ void camera_test()
     s->set_hmirror(s, 1);
 #endif
 
-    String ssid;
-    uint8_t mac[8];
-    esp_efuse_mac_get_default(mac);
-    ssid = WIFI_AP_SSID;
-    ssid += mac[0] + mac[1] + mac[2];
     WiFi.mode(WIFI_MODE_APSTA);
-    WiFi.softAP(ssid.c_str(), WIFI_AP_PASSWORD);
+    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD);
 
     startCameraServer();
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.softAPIP());
-    Serial.println("' to connect");
+    Serial.println("\n=========================================");
+    Serial.println("  CAMERA SERVER READY!");
+    Serial.printf("  Connect iPad to:  %s\n", WIFI_AP_SSID);
+    Serial.printf("  Wi-Fi Password:   %s\n", WIFI_AP_PASSWORD);
+    Serial.print("  Open Safari URL:  http://");
+    Serial.println(WiFi.softAPIP());
+    Serial.println("=========================================\n");
     // while (!WiFi.softAPgetStationNum()) {
     //     delay(10);
     // }

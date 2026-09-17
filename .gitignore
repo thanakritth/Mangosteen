@@ -2,6 +2,7 @@
 .pio/
 .pioenvs/
 .piolibdeps/
+*.ino.cpp
 
 # Python cache & virtual environments
 __pycache__/
