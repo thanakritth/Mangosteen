@@ -122,9 +122,11 @@ MangosteenResult classifyMangosteen(camera_fb_t *fb) {
             int src_idx = (src_y * fb->width + src_x) * 3;
             int dst_idx = (y * 96 + x) * 3;
 
-            uint8_t r = rgb888_buf[src_idx];
-            uint8_t g = rgb888_buf[src_idx + 1];
-            uint8_t b = rgb888_buf[src_idx + 2];
+            // Note: fmt2rgb888 on ESP32 outputs BGR byte order (buf[0]=B, buf[1]=G, buf[2]=R).
+            // Neural network expects standard RGB byte order (R, G, B).
+            uint8_t r = rgb888_buf[src_idx + 2]; // Red is at byte 2
+            uint8_t g = rgb888_buf[src_idx + 1]; // Green is at byte 1
+            uint8_t b = rgb888_buf[src_idx];     // Blue is at byte 0
 
             // Quantize to int8: (pixel / scale) + zero_point with bounds check
             int q_r = (int)roundf((float)r / in_scale) + in_zero;
@@ -139,10 +141,24 @@ MangosteenResult classifyMangosteen(camera_fb_t *fb) {
 
     free(rgb888_buf);
 
+    // Diagnostic RGB averages
+    uint32_t sum_r = 0, sum_g = 0, sum_b = 0;
+    for (int i = 0; i < 96 * 96; i++) {
+        sum_r += (uint8_t)(input_tensor->data.int8[i * 3] - in_zero);
+        sum_g += (uint8_t)(input_tensor->data.int8[i * 3 + 1] - in_zero);
+        sum_b += (uint8_t)(input_tensor->data.int8[i * 3 + 2] - in_zero);
+    }
+
     // Step 3: Run Model Inference & Benchmark Latency
     uint32_t start_time = millis();
     TfLiteStatus invoke_status = interpreter->Invoke();
     res.latency_ms = millis() - start_time;
+
+    Serial.printf("[AI DIAG] Center Crop RGB: R=%u, G=%u, B=%u | Raw int8: [%d, %d, %d]\n",
+                  sum_r / (96 * 96), sum_g / (96 * 96), sum_b / (96 * 96),
+                  output_tensor->data.int8[0],
+                  output_tensor->data.int8[1],
+                  output_tensor->data.int8[2]);
 
     if (invoke_status != kTfLiteOk) {
         Serial.println("[AI ERROR] Invoke() failed!");

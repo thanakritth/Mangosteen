@@ -674,9 +674,19 @@ main {
         border: '#ddd6fe',
         text: '#7e22ce',
         advice: '<strong>Overripe Characteristic:</strong> Deep dark violet to brownish-black skin. Pericarp softens or hardens; flesh translucent with slight browning.',
-        colorCore: '#4c1d95',
-        colorShade: '#2e1065',
-        colorRim: '#0f172a'
+        colorCore: '#4c0519',
+        colorShade: '#1c1917',
+        colorRim: '#09090b'
+      },
+      error: {
+        label: 'Connection Error',
+        bg: '#fef2f2',
+        border: '#fecaca',
+        text: '#dc2626',
+        advice: '<strong>Connection Failed:</strong> Unable to connect to ESP32 on-chip endpoint <code>/predict</code>. Please ensure your iPad or computer Wi-Fi is connected to <b>T-SIMCAM-Mangosteen</b> (http://192.168.4.1).',
+        colorCore: '#ef4444',
+        colorShade: '#b91c1c',
+        colorRim: '#7f1d1d'
       }
     };
 
@@ -1076,10 +1086,10 @@ main {
         latencyMs = Math.floor(42 + Math.random() * 8);
       } else {
         try {
-          const host = window.location.hostname || '192.168.4.1';
-          const predictUrl = (window.location.protocol === 'file:' || !window.location.hostname)
-            ? 'http://192.168.4.1/predict?_t=' + Date.now()
-            : '/predict?_t=' + Date.now();
+          const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
+          const predictUrl = (window.location.hostname === host)
+            ? '/predict?_t=' + Date.now()
+            : 'http://' + host + '/predict?_t=' + Date.now();
 
           logToSerial(`[HTTP] Calling on-chip inference endpoint: ${predictUrl}`, 'info');
           const response = await fetch(predictUrl, { cache: 'no-store' });
@@ -1087,18 +1097,21 @@ main {
             throw new Error('HTTP ' + response.status);
           }
           const data = await response.json();
-          logToSerial(`[AI OK] On-device prediction received!`, 'success');
+          logToSerial(`[AI OK] On-device prediction received! Class: ${data.class} (${data.confidence}%)`, 'success');
 
-          pClass = data.class || 'ripe';
+          pClass = data.class || 'unripe';
           conf = Number(data.confidence || 0).toFixed(1);
           u = Number(data.unripe || 0);
           r = Number(data.ripe || 0);
           o = Number(data.overripe || 0);
           latencyMs = Number(data.latency_ms || 140);
         } catch (err) {
-          logToSerial(`[AI WARN] Failed to call /predict (${err.message}).`, 'warn');
-          pClass = 'ripe';
-          u = 5.0; r = 90.0; o = 5.0; conf = '90.0'; latencyMs = 150;
+          logToSerial(`[AI WARN] Failed to call /predict (${err.message})`, 'warn');
+          logToSerial(`[TIP] Connect iPad/PC to Wi-Fi 'T-SIMCAM-Mangosteen' (http://192.168.4.1)`, 'warn');
+          pClass = 'error';
+          conf = '0.0';
+          u = 0.0; r = 0.0; o = 0.0;
+          latencyMs = 0;
         }
       }
 
