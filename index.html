@@ -364,9 +364,9 @@ main {
           <div class="rec" id="recBadge"><span class="rec-dot"></span><span>(REC)</span></div>
           <div class="res" id="resBadge">QVGA (320&times;240)</div>
           
-          <img id="streamImg" src="/stream" alt="Camera Stream" style="display:block;">
+          <img id="streamImg" src="" crossorigin="anonymous" alt="Camera Stream" style="display:block;">
           <canvas id="simCanvas" class="sim-view" width="320" height="240" style="display:none;"></canvas>
-          <img id="freezeImg" class="freeze-frame" alt="Frozen Still Frame">
+          <img id="freezeImg" class="freeze-frame" crossorigin="anonymous" alt="Frozen Still Frame">
           
           <div id="streamStandby" class="standby hidden">
             <div style="font-size:15px; font-weight:700; color:white; margin-bottom:4px;">Stream Paused or Standby</div>
@@ -700,6 +700,14 @@ main {
       return 'http://' + host + ':81/stream';
     }
 
+    function getCaptureUrl() {
+      const host = cameraIpInput.value.trim() || window.location.hostname || '192.168.4.1';
+      if (window.location.hostname === host) {
+        return '/capture?_t=' + Date.now();
+      }
+      return 'http://' + host + '/capture?_t=' + Date.now();
+    }
+
     let simAnimId = null;
     let simTime = 0;
 
@@ -941,44 +949,13 @@ main {
     function snapToPredict() {
       if (isAnalyzing) return;
       isAnalyzing = true;
+      isFrozen = true;
 
       // 1. Shutter flash effect
       shutterOverlay.style.opacity = '0.85';
-      setTimeout(() => { shutterOverlay.style.opacity = '0'; }, 150);
+      setTimeout(() => { shutterOverlay.style.opacity = '0'; }, 160);
 
-      // 2. Capture and FREEZE frame in viewfinder
-      isFrozen = true;
-      const fCanvas = document.createElement('canvas');
-      fCanvas.width = 320; fCanvas.height = 240;
-      const fCtx = fCanvas.getContext('2d');
-      let frozenData = '';
-      let thumb = '';
-
-      try {
-        if (isSimulatorMode) {
-          fCtx.drawImage(simCanvas, 0, 0, 320, 240);
-          if (simAnimId) { cancelAnimationFrame(simAnimId); simAnimId = null; }
-        } else {
-          // Hardware stream image
-          if (streamImg.naturalWidth > 0) {
-            fCtx.drawImage(streamImg, 0, 0, 320, 240);
-          }
-          streamImg.src = '';
-        }
-        frozenData = fCanvas.toDataURL('image/jpeg', 0.92);
-        freezeImg.src = frozenData;
-        freezeImg.style.display = 'block';
-
-        // Extract 96x96 center crop for thumbnail and model
-        const sz = 240;
-        const ctx96 = canvas.getContext('2d');
-        ctx96.drawImage(fCanvas, (320-sz)/2, 0, sz, sz, 0, 0, 96, 96);
-        thumb = canvas.toDataURL('image/jpeg', 0.85);
-      } catch (e) {
-        console.error('Frame freeze error:', e);
-      }
-
-      // Update REC badge to show FROZEN
+      // 2. Set badges to STILL / FROZEN
       recBadge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block;margin-right:4px;"></span><span>(STILL)</span>';
       recBadge.style.borderColor = 'rgba(245,158,11,0.5)';
       recBadge.style.color = '#fbbf24';
@@ -986,7 +963,7 @@ main {
       streamStatusBadge.style.color = '#f59e0b';
       liveFpsVal.innerHTML = `0.0 <small>FPS</small>`;
 
-      // UI: Thinking / Inferencing state
+      // 3. UI: Predicting state
       snapPredictBtn.disabled = true;
       snapBtnSpinner.style.display = 'inline-block';
       snapBtnText.textContent = 'Analyzing Fruit...';
@@ -997,10 +974,82 @@ main {
       confidencePercentage.textContent = '...';
       latencyBadge.textContent = 'Running inference...';
 
-      logToSerial('[SHUTTER] Frame captured & frozen in viewfinder', 'info');
+      logToSerial('[SHUTTER] Shutter snapped! Freezing optical frame...', 'info');
+
+      if (isSimulatorMode) {
+        // Freeze simulation canvas
+        let frozenData = '';
+        try {
+          frozenData = simCanvas.toDataURL('image/jpeg', 0.95);
+          freezeImg.src = frozenData;
+          freezeImg.style.display = 'block';
+          simCanvas.style.display = 'none';
+          if (simAnimId) { cancelAnimationFrame(simAnimId); simAnimId = null; }
+        } catch (e) {
+          console.error(e);
+        }
+        runInferencePipeline(frozenData);
+      } else {
+        // Hardware Mode: Fetch high-quality still frame from /capture
+        // CRITICAL: streamImg remains VISIBLE until freezeImg is fully ready so user NEVER sees black!
+        const snapUrl = getCaptureUrl();
+        const snapLoader = new Image();
+        snapLoader.crossOrigin = 'anonymous';
+
+        let captured = false;
+        const lockFrozenFrame = (src) => {
+          if (captured) return;
+          captured = true;
+          freezeImg.src = src;
+          freezeImg.style.display = 'block';
+          // ONLY NOW hide and disconnect the stream to conserve ESP32 camera & Wi-Fi bandwidth
+          streamImg.style.display = 'none';
+          streamImg.src = '';
+          logToSerial('[SHUTTER] Still photo locked in viewfinder', 'success');
+          runInferencePipeline(src);
+        };
+
+        snapLoader.onload = () => {
+          lockFrozenFrame(snapLoader.src);
+        };
+
+        snapLoader.onerror = () => {
+          logToSerial('[WARN] /capture fetch error, preserving live viewfinder frame', 'warn');
+          // If /capture somehow fails, do NOT turn black; keep current frame
+          lockFrozenFrame(streamImg.src);
+        };
+
+        // 2-second timeout guard
+        setTimeout(() => {
+          if (!captured) {
+            logToSerial('[WARN] Capture response timeout, locking viewport', 'warn');
+            lockFrozenFrame(snapUrl);
+          }
+        }, 2000);
+
+        snapLoader.src = snapUrl;
+      }
+    }
+
+    function runInferencePipeline(stillImgSrc) {
       logToSerial('[SNAP] Center crop 240x240 -> 96x96 RGB extracted', 'info');
       logToSerial('[AI] Normalizing tensor to int8 [-128, 127] scale=0.00392, zp=-128', 'ai');
       logToSerial('[AI] Invoking TensorFlow Lite Micro in 512KB Tensor Arena (PSRAM)...', 'ai');
+
+      // Generate 96x96 thumbnail safely for history
+      let thumb = '';
+      try {
+        const ctx96 = canvas.getContext('2d');
+        if (freezeImg.naturalWidth > 0 && freezeImg.naturalHeight > 0) {
+          const sz = Math.min(freezeImg.naturalWidth, freezeImg.naturalHeight);
+          const sx = (freezeImg.naturalWidth - sz) / 2;
+          const sy = (freezeImg.naturalHeight - sz) / 2;
+          ctx96.drawImage(freezeImg, sx, sy, sz, sz, 0, 0, 96, 96);
+          thumb = canvas.toDataURL('image/jpeg', 0.85);
+        }
+      } catch (e) {
+        console.warn('Thumbnail generation:', e);
+      }
 
       setTimeout(() => {
         let pClass = currentFruitStage;
@@ -1066,7 +1115,7 @@ main {
           predictedClass: pred.predictedClass,
           confidence: pred.confidence,
           latencyMs: pred.latencyMs,
-          thumbnail: thumb || frozenData
+          thumbnail: thumb || stillImgSrc
         });
         if (historyRecords.length > 20) historyRecords.pop();
         try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
@@ -1074,8 +1123,9 @@ main {
 
         isAnalyzing = false;
         snapBtnSpinner.style.display = 'none';
-        snapBtnText.textContent = 'Captured (Click Reset to Scan Again)';
-      }, 1800);
+        snapBtnText.textContent = 'Captured (Click Reset Camera to Scan Again)';
+        // IMPORTANT: freezeImg remains style.display = 'block'! It stays frozen until user presses Reset Camera!
+      }, 1600);
     }
 
     function resetCameraStream() {
@@ -1088,12 +1138,19 @@ main {
       recBadge.innerHTML = '<span class="rec-dot"></span><span>(REC)</span>';
       recBadge.style.borderColor = 'rgba(255,255,255,0.15)';
       recBadge.style.color = '#f87171';
+      streamStatusBadge.textContent = isSimulatorMode ? 'SIM LIVE' : 'LIVE';
+      streamStatusBadge.style.color = '#10b981';
 
       resetStreamBtn.style.display = 'none';
       snapPredictBtn.disabled = false;
       snapBtnSpinner.style.display = 'none';
       snapBtnText.textContent = 'Snap to Predict';
 
+      if (isSimulatorMode) {
+        simCanvas.style.display = 'block';
+      } else {
+        streamImg.style.display = 'block';
+      }
       startStream();
       logToSerial('[CAMERA] Viewfinder reset. Live stream resumed.', 'success');
     }
