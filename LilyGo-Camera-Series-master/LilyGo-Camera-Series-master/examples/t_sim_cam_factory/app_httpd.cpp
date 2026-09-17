@@ -20,6 +20,7 @@
 #include "sdkconfig.h"
 #include "camera_index.h"
 #include "mangosteen_html.h"
+#include "mangosteen_infer.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1145,6 +1146,43 @@ static esp_err_t mangosteen_index_handler(httpd_req_t *req)
     return httpd_resp_send(req, (const char *)mangosteen_html_gz, mangosteen_html_gz_len);
 }
 
+static esp_err_t predict_handler(httpd_req_t *req)
+{
+    camera_fb_t *fb = esp_camera_fb_get();
+    if (!fb) {
+        ESP_LOGE(TAG, "Camera capture failed for prediction");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+    MangosteenResult mres = classifyMangosteen(fb);
+    printMangosteenResult(mres);
+    esp_camera_fb_return(fb);
+
+    if (!mres.success) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+        return httpd_resp_sendstr(req, "{\"status\":\"error\",\"message\":\"Inference failed\"}");
+    }
+
+    char json_response[256];
+    snprintf(json_response, sizeof(json_response),
+        "{\"status\":\"ok\",\"class\":\"%s\",\"label\":\"%s\",\"confidence\":%.2f,\"unripe\":%.2f,\"ripe\":%.2f,\"overripe\":%.2f,\"latency_ms\":%u}",
+        mres.class_code,
+        mres.label,
+        mres.confidence,
+        mres.unripe_pct,
+        mres.ripe_pct,
+        mres.overripe_pct,
+        (unsigned int)mres.latency_ms
+    );
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    return httpd_resp_sendstr(req, json_response);
+}
+
 static esp_err_t index_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -1167,12 +1205,18 @@ static esp_err_t index_handler(httpd_req_t *req)
 void startCameraServer()
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 16;
+    config.max_uri_handlers = 20;
 
     httpd_uri_t index_uri = {
         .uri = "/",
         .method = HTTP_GET,
         .handler = mangosteen_index_handler,
+        .user_ctx = NULL};
+
+    httpd_uri_t predict_uri = {
+        .uri = "/predict",
+        .method = HTTP_GET,
+        .handler = predict_handler,
         .user_ctx = NULL};
 
     httpd_uri_t settings_uri = {
@@ -1253,6 +1297,7 @@ void startCameraServer()
     if (httpd_start(&camera_httpd, &config) == ESP_OK)
     {
         httpd_register_uri_handler(camera_httpd, &index_uri);
+        httpd_register_uri_handler(camera_httpd, &predict_uri);
         httpd_register_uri_handler(camera_httpd, &settings_uri);
         httpd_register_uri_handler(camera_httpd, &cmd_uri);
         httpd_register_uri_handler(camera_httpd, &status_uri);

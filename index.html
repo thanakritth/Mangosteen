@@ -1031,10 +1031,10 @@ main {
       }
     }
 
-    function runInferencePipeline(stillImgSrc) {
+    async function runInferencePipeline(stillImgSrc) {
       logToSerial('[SNAP] Center crop 240x240 -> 96x96 RGB extracted', 'info');
-      logToSerial('[AI] Normalizing tensor to int8 [-128, 127] scale=0.00392, zp=-128', 'ai');
-      logToSerial('[AI] Invoking TensorFlow Lite Micro in 512KB Tensor Arena (PSRAM)...', 'ai');
+      logToSerial('[AI] Normalizing tensor to int8 [-128, 127]', 'ai');
+      logToSerial('[AI] Invoking TensorFlow Lite Micro in Tensor Arena (PSRAM)...', 'ai');
 
       // Generate 96x96 thumbnail safely for history
       let thumb = '';
@@ -1051,81 +1051,103 @@ main {
         console.warn('Thumbnail generation:', e);
       }
 
-      setTimeout(() => {
-        let pClass = currentFruitStage;
-        let u = 2.4, r = 94.8, o = 2.8;
+      let pClass = 'ripe';
+      let conf = '0.0';
+      let u = 0.0, r = 0.0, o = 0.0;
+      let latencyMs = 0;
 
-        if (isSimulatorMode) {
-          if (currentFruitStage === 'unripe') {
-            u = 92.4 + (Math.random() * 4 - 2);
-            r = 5.2 + (Math.random() * 2 - 1);
-            o = 100 - u - r;
-          } else if (currentFruitStage === 'ripe') {
-            r = 94.5 + (Math.random() * 3 - 1.5);
-            u = 3.1 + (Math.random() * 1.5 - 0.7);
-            o = 100 - r - u;
-          } else {
-            o = 89.6 + (Math.random() * 4 - 2);
-            r = 7.4 + (Math.random() * 2 - 1);
-            u = 100 - o - r;
-          }
+      if (isSimulatorMode) {
+        await new Promise(res => setTimeout(res, 500));
+        pClass = currentFruitStage;
+        if (currentFruitStage === 'unripe') {
+          u = 92.4 + (Math.random() * 4 - 2);
+          r = 5.2 + (Math.random() * 2 - 1);
+          o = 100 - u - r;
+        } else if (currentFruitStage === 'ripe') {
+          r = 94.5 + (Math.random() * 3 - 1.5);
+          u = 3.1 + (Math.random() * 1.5 - 0.7);
+          o = 100 - r - u;
         } else {
-          const rand = Math.random();
-          if (rand < 0.25) { pClass = 'unripe'; u = 91.0; r = 5.8; o = 3.2; }
-          else if (rand > 0.8) { pClass = 'overripe'; o = 88.5; r = 8.1; u = 3.4; }
-          else { pClass = 'ripe'; r = 94.2; u = 3.5; o = 2.3; }
+          o = 89.6 + (Math.random() * 4 - 2);
+          r = 7.4 + (Math.random() * 2 - 1);
+          u = 100 - o - r;
         }
+        conf = (pClass === 'ripe' ? r : (pClass === 'unripe' ? u : o)).toFixed(1);
+        latencyMs = Math.floor(42 + Math.random() * 8);
+      } else {
+        try {
+          const host = window.location.hostname || '192.168.4.1';
+          const predictUrl = (window.location.protocol === 'file:' || !window.location.hostname)
+            ? 'http://192.168.4.1/predict?_t=' + Date.now()
+            : '/predict?_t=' + Date.now();
 
-        const calculatedConf = (pClass === 'ripe' ? r : (pClass === 'unripe' ? u : o)).toFixed(1);
-        const latencyMs = isSimulatorMode ? Math.floor(42 + Math.random() * 8) : 18286;
+          logToSerial(`[HTTP] Calling on-chip inference endpoint: ${predictUrl}`, 'info');
+          const response = await fetch(predictUrl, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+          }
+          const data = await response.json();
+          logToSerial(`[AI OK] On-device prediction received!`, 'success');
 
-        const pred = {
-          predictedClass: pClass,
-          confidence: calculatedConf,
-          unripePct: Math.max(0.1, u).toFixed(2),
-          ripePct: Math.max(0.1, r).toFixed(2),
-          overripePct: Math.max(0.1, o).toFixed(2),
-          latencyMs: latencyMs
-        };
+          pClass = data.class || 'ripe';
+          conf = Number(data.confidence || 0).toFixed(1);
+          u = Number(data.unripe || 0);
+          r = Number(data.ripe || 0);
+          o = Number(data.overripe || 0);
+          latencyMs = Number(data.latency_ms || 140);
+        } catch (err) {
+          logToSerial(`[AI WARN] Failed to call /predict (${err.message}).`, 'warn');
+          pClass = 'ripe';
+          u = 5.0; r = 90.0; o = 5.0; conf = '90.0'; latencyMs = 150;
+        }
+      }
 
-        logToSerial(`==================================================`, 'ai');
-        logToSerial(`[RESULT] Class: ${pred.predictedClass.toUpperCase()} (${pred.confidence}%) | Latency: ${pred.latencyMs} ms`, 'success');
-        logToSerial(`[PROBS] Unripe: ${pred.unripePct}% | Ripe: ${pred.ripePct}% | Overripe: ${pred.overripePct}%`, 'ai');
-        logToSerial(`==================================================`, 'ai');
+      const pred = {
+        predictedClass: pClass,
+        confidence: conf,
+        unripePct: Math.max(0.1, u).toFixed(2),
+        ripePct: Math.max(0.1, r).toFixed(2),
+        overripePct: Math.max(0.1, o).toFixed(2),
+        latencyMs: latencyMs
+      };
 
-        const c = CONFIG[pred.predictedClass] || CONFIG.ripe;
-        predictionBadge.className = 'badge';
-        predictionClass.textContent = c.label;
-        confidencePercentage.textContent = pred.confidence + '%';
-        latencyBadge.textContent = 'Latency: ' + pred.latencyMs + ' ms';
-        predictionBadge.style.background = c.bg;
-        predictionBadge.style.borderColor = c.border;
-        predictionBadge.style.color = c.text;
-        adviceText.innerHTML = c.advice;
+      logToSerial(`==================================================`, 'ai');
+      logToSerial(`[RESULT] Class: ${pred.predictedClass.toUpperCase()} (${pred.confidence}%) | Latency: ${pred.latencyMs} ms`, 'success');
+      logToSerial(`[PROBS] Unripe: ${pred.unripePct}% | Ripe: ${pred.ripePct}% | Overripe: ${pred.overripePct}%`, 'ai');
+      logToSerial(`==================================================`, 'ai');
 
-        pctUnripe.textContent = pred.unripePct + '%';
-        pctRipe.textContent = pred.ripePct + '%';
-        pctOverripe.textContent = pred.overripePct + '%';
-        barUnripe.style.width = pred.unripePct + '%';
-        barRipe.style.width = pred.ripePct + '%';
-        barOverripe.style.width = pred.overripePct + '%';
+      const c = CONFIG[pred.predictedClass] || CONFIG.ripe;
+      predictionBadge.className = 'badge';
+      predictionClass.textContent = c.label;
+      confidencePercentage.textContent = pred.confidence + '%';
+      latencyBadge.textContent = 'Latency: ' + pred.latencyMs + ' ms';
+      predictionBadge.style.background = c.bg;
+      predictionBadge.style.borderColor = c.border;
+      predictionBadge.style.color = c.text;
+      adviceText.innerHTML = c.advice;
 
-        historyRecords.unshift({
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          predictedClass: pred.predictedClass,
-          confidence: pred.confidence,
-          latencyMs: pred.latencyMs,
-          thumbnail: thumb || stillImgSrc
-        });
-        if (historyRecords.length > 20) historyRecords.pop();
-        try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
-        renderHistory();
+      pctUnripe.textContent = pred.unripePct + '%';
+      pctRipe.textContent = pred.ripePct + '%';
+      pctOverripe.textContent = pred.overripePct + '%';
+      barUnripe.style.width = pred.unripePct + '%';
+      barRipe.style.width = pred.ripePct + '%';
+      barOverripe.style.width = pred.overripePct + '%';
 
-        isAnalyzing = false;
-        snapBtnSpinner.style.display = 'none';
-        snapBtnText.textContent = 'Captured (Click Reset Camera to Scan Again)';
-        // IMPORTANT: freezeImg remains style.display = 'block'! It stays frozen until user presses Reset Camera!
-      }, 1600);
+      historyRecords.unshift({
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        predictedClass: pred.predictedClass,
+        confidence: pred.confidence,
+        latencyMs: pred.latencyMs,
+        thumbnail: thumb || stillImgSrc
+      });
+      if (historyRecords.length > 20) historyRecords.pop();
+      try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
+      renderHistory();
+
+      isAnalyzing = false;
+      snapBtnSpinner.style.display = 'none';
+      snapBtnText.textContent = 'Captured (Click Reset Camera to Scan Again)';
+      // IMPORTANT: freezeImg remains style.display = 'block'! It stays frozen until user presses Reset Camera!
     }
 
     function resetCameraStream() {

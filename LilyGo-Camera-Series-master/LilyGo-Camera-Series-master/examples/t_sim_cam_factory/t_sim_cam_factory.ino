@@ -53,18 +53,9 @@ void setup()
 
 void loop()
 {
-    // Realtime Mangosteen AI Inference every 2.5 seconds
-    static uint32_t last_infer = 0;
-    if (millis() - last_infer > 2500) {
-        last_infer = millis();
-        camera_fb_t *fb = esp_camera_fb_get();
-        if (fb) {
-            MangosteenResult res = classifyMangosteen(fb);
-            printMangosteenResult(res);
-            esp_camera_fb_return(fb);
-        }
-    }
-    delay(10);
+    // Realtime on-chip inference is served on-demand via the /predict HTTP endpoint
+    // when the user triggers snapshot/classification from the web UI.
+    delay(50);
 }
 
 void sd_test(void)
