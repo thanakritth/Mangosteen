@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mangosteen Ripeness AI - Real-Time Edge Benchmark & Classifier</title>
+  <title>Mangosteen Ripeness AI - Edge AIoT Classifier</title>
   <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -39,94 +39,81 @@ header {
 .brand-sub { font-size: 11px; color: #64748b; }
 .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-.mode-pill {
-  display: flex; align-items: center; background: #faf5ff;
-  border: 1px solid #d8b4fe; border-radius: 8px; padding: 3px 6px; gap: 4px;
-}
-.mode-btn {
-  border: none; background: none; font-size: 11px; font-weight: 700;
-  padding: 3px 8px; border-radius: 6px; cursor: pointer; color: #64748b;
-  transition: all 0.15s;
-}
-.mode-btn.active {
-  background: #7e22ce; color: white; box-shadow: 0 2px 6px rgba(126,34,206,0.25);
-}
-
 .host-pill {
   display: flex; align-items: center; background: #faf5ff;
   border: 1px solid #e9d5ff; border-radius: 8px; padding: 4px 8px;
   font-size: 11px; color: #581c87;
 }
 .host-pill input {
-  background: none; border: none; border-bottom: 1px solid #c084fc;
-  width: 86px; font-family: monospace; font-weight: 600; font-size: 11px;
-  color: #581c87; margin: 0 4px; outline: none;
+  border: none; background: transparent; font-family: monospace; font-size: 11px;
+  width: 95px; color: #581c87; font-weight: 700; outline: none; margin-left: 4px;
 }
+
 .btn-cfg {
-  background: white; border: 1px solid #cbd5e1; border-radius: 8px;
-  padding: 6px 12px; font-size: 11px; font-weight: 700; color: #334155;
-  cursor: pointer; display: flex; align-items: center; gap: 4px;
-  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  background: white; border: 1px solid #d8b4fe; border-radius: 8px;
+  padding: 5px 10px; font-size: 11px; font-weight: 700; color: #6b21a8;
+  cursor: pointer; transition: all 0.15s;
 }
-.btn-cfg:hover { background: #f3e8ff; color: #7e22ce; border-color: #d8b4fe; }
+.btn-cfg:hover { background: #f3e8ff; border-color: #a855f7; }
 
 main {
-  flex: 1; max-width: 1240px; width: 100%; margin: 0 auto;
-  padding: 16px 12px; display: flex; flex-direction: column; gap: 16px;
+  max-width: 1240px; width: 100%; margin: 0 auto;
+  padding: 16px; display: flex; flex-direction: column; gap: 16px; flex: 1;
 }
 
 .hero {
-  background: white; border-radius: 14px; padding: 16px;
+  background: white; border-radius: 14px; padding: 14px 18px;
   border: 1px solid #e9d5ff; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
 }
-.hero-title { font-size: 18px; font-weight: 800; color: #1e1b4b; }
-.hero-desc { font-size: 12px; color: #64748b; margin-top: 3px; max-width: 740px; line-height: 1.4; }
+.hero-title { font-size: 15px; font-weight: 800; color: #1e1b4b; }
+.hero-desc { font-size: 11px; color: #64748b; margin-top: 2px; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; }
+.chip {
+  font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
 .chip-green { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-.chip-purple { background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+.chip-purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
 .chip-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
 .grid {
-  display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px;
+  display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px;
 }
 @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
 
 .card {
-  background: white; border-radius: 14px; padding: 16px;
+  background: white; border-radius: 14px; padding: 14px;
   border: 1px solid #e9d5ff; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
 .card-header {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 10px; font-size: 11px; color: #64748b; font-weight: 600;
+  font-size: 12px; font-weight: 800; color: #1e1b4b; margin-bottom: 10px;
 }
 
 .viewport {
-  position: relative; width: 100%; aspect-ratio: 4/3;
-  background: #020617; border-radius: 10px; overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 480px;
+  background: #020617; border-radius: 12px; overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
   display: flex; align-items: center; justify-content: center;
 }
-.viewport img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.viewport canvas.sim-view { width: 100%; height: 100%; object-fit: cover; display: block; }
-.freeze-frame {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  z-index: 10; display: none;
+.stream-view {
+  width: 100%; height: 100%; object-fit: contain; display: block;
 }
-
+.freeze-view {
+  width: 100%; height: 100%; object-fit: contain; display: none;
+}
 .rec {
   position: absolute; top: 10px; right: 10px; z-index: 20;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.15); border-radius: 9999px;
-  padding: 3px 8px; display: flex; align-items: center; gap: 5px;
-  color: #f87171; font-family: monospace; font-size: 10px; font-weight: 800;
-  transition: all 0.2s;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  border-radius: 9999px; padding: 2px 8px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; color: white;
 }
-.rec-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: #ef4444;
-  box-shadow: 0 0 6px #ef4444; animation: pulse 1s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.rec-dot { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+
 .res {
   position: absolute; top: 10px; left: 10px; z-index: 20;
   background: rgba(0,0,0,0.55); border-radius: 5px; padding: 2px 6px;
@@ -165,28 +152,14 @@ main {
 }
 .standby.hidden { display: none; }
 
-.sim-controls {
-  background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px;
-  padding: 8px 12px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-}
-.sim-title { font-size: 11px; font-weight: 800; color: #581c87; text-transform: uppercase; letter-spacing: 0.5px; }
-.fruit-picker { display: flex; gap: 4px; }
-.btn-fruit {
-  border: 1px solid #cbd5e1; background: white; font-size: 10px; font-weight: 700;
-  padding: 4px 9px; border-radius: 6px; cursor: pointer; color: #334155; transition: all 0.15s;
-}
-.btn-fruit:hover { background: #f3e8ff; border-color: #c084fc; color: #7e22ce; }
-.btn-fruit.active { background: #7e22ce; color: white; border-color: #7e22ce; }
-
 .controls-container {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f1f5f9;
+  display: flex; flex-direction: column; gap: 10px; margin-top: 12px;
 }
 .main-btn-row {
-  display: flex; gap: 10px; width: 100%; max-width: 420px; align-items: center;
+  display: grid; grid-template-columns: 1fr auto; gap: 8px;
 }
 .btn-snap {
-  flex: 1; padding: 14px 20px;
+  padding: 14px 20px;
   font-size: 15px; font-weight: 800; letter-spacing: 0.5px;
   border-radius: 12px; border: none; cursor: pointer;
   background: linear-gradient(135deg, #7e22ce, #9333ea 50%, #e11d48 100%);
@@ -230,8 +203,8 @@ main {
 .badge {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 10px 24px; border-radius: 14px; font-size: 22px; font-weight: 900;
-  border: 2px solid #fecdd3; background: #fff1f2; color: #f43f5e;
-  box-shadow: 0 4px 10px rgba(244,63,94,0.12); transition: all 0.3s;
+  border: 2px solid #e9d5ff; background: #faf5ff; color: #7e22ce;
+  box-shadow: 0 4px 10px rgba(126,34,206,0.12); transition: all 0.3s;
   min-width: 160px;
 }
 .badge.thinking {
@@ -248,15 +221,15 @@ main {
 .fill { height: 100%; border-radius: 9999px; transition: width 0.4s ease; }
 .fill-u { background: #10b981; }
 .fill-r { background: #f43f5e; }
-.fill-o { background: #8b5cf6; }
-.advice {
-  margin-top: 14px; padding: 10px 12px; border-radius: 10px;
-  background: #faf5ff; border: 1px solid #e9d5ff; font-size: 11px; color: #581c87;
-  display: flex; flex-direction: column; gap: 2px;
-}
-.advice-title { font-weight: 800; font-size: 11px; color: #7e22ce; text-transform: uppercase; letter-spacing: 0.5px; }
+.fill-o { background: #7e22ce; }
 
-/* REAL-TIME BENCHMARK TELEMETRY DASHBOARD */
+.advice {
+  background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px;
+  padding: 12px; margin-top: 12px;
+}
+.adv-title { font-size: 10px; font-weight: 800; color: #581c87; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.adv-body { font-size: 11px; color: #475569; line-height: 1.45; }
+
 .benchmark-section {
   background: white; border-radius: 14px; padding: 16px;
   border: 1px solid #e9d5ff; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
@@ -277,8 +250,6 @@ main {
 .b-val { font-size: 20px; font-weight: 800; color: #1e1b4b; font-family: monospace; display: flex; align-items: baseline; gap: 4px; }
 .b-val small { font-size: 11px; font-weight: 600; color: #64748b; font-family: sans-serif; }
 .b-sub { font-size: 10px; color: #64748b; line-height: 1.3; }
-.b-meter { width: 100%; height: 6px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; margin-top: 4px; }
-.b-meter-fill { height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 9999px; transition: width 0.3s; }
 .b-badge-pass {
   background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;
   padding: 1px 6px; border-radius: 9999px; font-size: 9px; font-weight: 800;
@@ -307,7 +278,7 @@ main {
 .modal-top { padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
 .modal-body { flex: 1; background: #f1f5f9; }
 .modal-body iframe { width: 100%; height: 100%; border: none; }
-</style>
+  </style>
 </head>
 <body>
 
@@ -322,12 +293,7 @@ main {
       </div>
 
       <div class="actions">
-        <div class="mode-pill">
-          <button id="modeSimBtn" class="mode-btn">Simulator</button>
-          <button id="modeHwBtn" class="mode-btn active">ESP32 Hardware</button>
-        </div>
-
-        <div class="host-pill" id="hostPillBox" style="display:flex;">
+        <div class="host-pill" id="hostPillBox">
           <span style="width:7px; height:7px; border-radius:50%; background:#10b981; margin-right:5px; display:inline-block;"></span>
           <span>Host:</span>
           <input type="text" id="cameraIpInput" value="192.168.4.1">
@@ -343,56 +309,44 @@ main {
     <div class="hero">
       <div>
         <div class="hero-title">Intelligent Mangosteen Ripeness Grader</div>
-        <div class="hero-desc">On-chip Edge AI inference running on ESP32-S3 OV2640. Align the fruit inside the target viewfinder to classify ripeness into Unripe, Ripe, or Overripe.</div>
+        <div class="hero-desc">On-chip Edge AI inference running live on ESP32-S3 OV2640. Align the fruit inside the target viewfinder to classify ripeness into Unripe, Ripe, or Overripe.</div>
       </div>
       <div class="chips">
-        <div class="chip chip-green" id="activeModeChip">Hardware Active</div>
+        <div class="chip chip-green">ESP32-S3 Active</div>
         <div class="chip chip-purple">&le; 100k Params Compliant</div>
         <div class="chip chip-blue">int8 Quantized</div>
       </div>
     </div>
 
     <div class="grid">
-      <!-- LEFT: CAMERA / SIMULATOR -->
+      <!-- LEFT: CAMERA VIEW -->
       <section class="card">
         <div class="card-header">
-          <div><span style="width:7px; height:7px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span><span id="feedTitle">OV2640 Optical Feed</span></div>
+          <div><span style="width:7px; height:7px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span>OV2640 Optical Feed</div>
           <div>96&times;96 Model ROI</div>
         </div>
 
-        <div class="viewport" id="cameraViewport">
-          <div class="rec" id="recBadge"><span class="rec-dot"></span><span>(REC)</span></div>
-          <div class="res" id="resBadge">QVGA (320&times;240)</div>
-          
-          <img id="streamImg" src="" crossorigin="anonymous" alt="Camera Stream" style="display:block;">
-          <canvas id="simCanvas" class="sim-view" width="320" height="240" style="display:none;"></canvas>
-          <img id="freezeImg" class="freeze-frame" crossorigin="anonymous" alt="Frozen Still Frame">
-          
-          <div id="streamStandby" class="standby hidden">
-            <div style="font-size:15px; font-weight:700; color:white; margin-bottom:4px;">Stream Paused or Standby</div>
-            <div style="font-size:11px; color:#94a3b8;">Click Reset Camera or Start Stream below to resume.</div>
-            <button id="retryConnectBtn" class="btn-secondary" style="margin-top:10px; background:#7e22ce; color:white; border:none;">Connect Camera</button>
+        <div class="viewport" id="viewport">
+          <img id="streamImg" class="stream-view" alt="Live Camera Stream">
+          <img id="freezeImg" class="freeze-view" alt="Frozen Still Capture">
+
+          <div class="shutter" id="shutterOverlay"></div>
+          <div class="res" id="resTag">QVGA (320&times;240)</div>
+          <div class="rec" id="recBadge"><span class="rec-dot"></span><span id="streamStatusBadge">LIVE</span></div>
+
+          <div class="standby hidden" id="streamStandby">
+            <div style="font-size:26px; margin-bottom:8px; font-weight:800;">Viewfinder Idle</div>
+            <div style="font-size:12px; max-width:280px; margin-bottom:14px;">Camera stream is suspended. Click below to resume live viewfinder.</div>
+            <button id="retryConnectBtn" class="btn-secondary" style="background:#7e22ce; color:white; border:none; padding:8px 16px;">Resume Camera</button>
           </div>
 
-          <div id="shutterOverlay" class="shutter"></div>
-
-          <div id="targetGridOverlay" class="overlay">
+          <div class="overlay" id="targetGridOverlay">
             <div class="target-box">
               <div class="c-tl"></div><div class="c-tr"></div>
               <div class="c-bl"></div><div class="c-br"></div>
               <div class="cross"><div class="cross-dot"></div></div>
               <div class="t-label"><span>Align Fruit Inside Target Box</span></div>
             </div>
-          </div>
-        </div>
-
-        <div class="sim-controls" id="simControlsBox" style="display:none;">
-          <span class="sim-title">Simulation Stage:</span>
-          <div class="fruit-picker">
-            <button class="btn-fruit" id="simFruitUnripe">Unripe</button>
-            <button class="btn-fruit active" id="simFruitRipe">Ripe</button>
-            <button class="btn-fruit" id="simFruitOverripe">Overripe</button>
-            <button class="btn-fruit" id="simFruitCycle">Auto-Cycle</button>
           </div>
         </div>
 
@@ -423,14 +377,14 @@ main {
       <section class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
         <div>
           <div class="card-header">
-            <div><span style="width:6px; height:6px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span>Inference Result</div>
+            <div><span style="width:6px; height:6px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span>On-Chip Inference Result</div>
             <div id="latencyBadge" style="background:#f1f5f9; padding:2px 6px; border-radius:9999px; font-family:monospace;">Ready</div>
           </div>
 
           <div class="pred-box">
             <div class="pred-label">Predicted Ripeness Stage</div>
             <div id="predictionBadge" class="badge">
-              <span id="predictionClass">Ready</span>
+              <span id="predictionClass">Ready to Scan</span>
             </div>
             <div class="conf" id="confidencePercentage">--%</div>
             <div class="conf-sub">Confidence Score</div>
@@ -438,11 +392,11 @@ main {
         </div>
 
         <div class="bars">
-          <div class="bar-header">Class Probabilities</div>
+          <div class="bar-header">Class Probabilities (On-Chip int8 Softmax)</div>
 
           <div class="bar-row">
             <div class="bar-meta" style="color:#065f46;">
-              <span>Unripe</span>
+              <span>Unripe (ดิบ)</span>
               <span id="pctUnripe" style="font-family:monospace;">0.00%</span>
             </div>
             <div class="track"><div id="barUnripe" class="fill fill-u" style="width:0%;"></div></div>
@@ -450,7 +404,7 @@ main {
 
           <div class="bar-row">
             <div class="bar-meta" style="color:#9f1239;">
-              <span>Ripe</span>
+              <span>Ripe (สุก)</span>
               <span id="pctRipe" style="font-family:monospace;">0.00%</span>
             </div>
             <div class="track"><div id="barRipe" class="fill fill-r" style="width:0%;"></div></div>
@@ -458,95 +412,61 @@ main {
 
           <div class="bar-row">
             <div class="bar-meta" style="color:#581c87;">
-              <span>Overripe</span>
+              <span>Overripe (สุกงอม)</span>
               <span id="pctOverripe" style="font-family:monospace;">0.00%</span>
             </div>
             <div class="track"><div id="barOverripe" class="fill fill-o" style="width:0%;"></div></div>
           </div>
         </div>
 
-        <div class="advice" id="adviceBox">
-          <span class="advice-title">Ripeness Guide</span>
-          <div id="adviceText">
-            Place mangosteen in viewfinder and tap <strong>Snap to Predict</strong>. The image will freeze and AI will analyze ripeness.
-          </div>
+        <div class="advice" id="adviceContainer">
+          <div class="adv-title">Ripeness Guide &bull; Agronomic Advice</div>
+          <div class="adv-body" id="adviceText">Point the camera at a mangosteen and click <b>Snap to Predict</b> to run on-chip AI classification.</div>
         </div>
       </section>
     </div>
 
-    <!-- REAL-TIME BENCHMARK TELEMETRY DASHBOARD -->
+    <!-- BENCHMARK SECTION -->
     <section class="benchmark-section">
       <div class="benchmark-top">
-        <div class="bench-title">
-          <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-          Real-Time Edge AI Benchmark Telemetry
-        </div>
-        <div style="font-size:11px; color:#64748b; font-weight:600;">
-          Rubric Compliance: Course COE67-312
-        </div>
+        <div class="bench-title">System Telemetry & Edge Benchmark</div>
+        <div style="font-size:11px; color:#64748b;">Firmware: T-SIMCAM ESP32-S3 &bull; TFLite Micro int8</div>
       </div>
-
       <div class="bench-grid">
         <div class="b-card">
-          <div class="b-head">
-            <span>Model Parameters</span>
-            <span class="b-badge-pass">PASS</span>
-          </div>
-          <div class="b-val">36,419 <small>/ 100,000</small></div>
-          <div class="b-meter">
-            <div class="b-meter-fill" style="width: 36.4%;"></div>
-          </div>
-          <div class="b-sub">Using 36.4% of maximum 100k budget. Ultra-lightweight CNN.</div>
+          <div class="b-head"><span>Live Frame Rate</span><span class="b-badge-pass">Active</span></div>
+          <div class="b-val"><span id="liveFpsVal">--</span> <small>FPS</small></div>
+          <div class="b-sub">OV2640 DVP Hardware Stream</div>
         </div>
-
         <div class="b-card">
-          <div class="b-head">
-            <span>int8 Quantization</span>
-            <span class="b-badge-pass">&lt; 2% DROP</span>
-          </div>
-          <div class="b-val">0.84% <small>Drop</small></div>
-          <div class="b-meter">
-            <div class="b-meter-fill" style="width: 42%; background: #10b981;"></div>
-          </div>
-          <div class="b-sub">Full Integer Quantization (int8 input &amp; output). Target drop &lt; 2%.</div>
+          <div class="b-head"><span>Stream Bandwidth</span><span>TCP</span></div>
+          <div class="b-val"><span id="streamBitrateVal">--</span> <small>KB/s</small></div>
+          <div class="b-sub">MJPEG Payload Throughput</div>
         </div>
-
         <div class="b-card">
-          <div class="b-head">
-            <span>Memory &amp; Storage</span>
-            <span style="font-size:9px; font-weight:700; color:#581c87;">PSRAM</span>
-          </div>
-          <div class="b-val">30.6 <small>KB ROM</small></div>
-          <div style="font-size:11px; font-family:monospace; color:#475569;">Tensor Arena: 512 KB</div>
-          <div class="b-sub">Allocated on 8MB external PSRAM. Zero internal SRAM exhaustion.</div>
+          <div class="b-head"><span>Model Memory Arena</span><span class="b-badge-pass">PSRAM</span></div>
+          <div class="b-val">595 <small>/ 1024 KB</small></div>
+          <div class="b-sub">Tensor Arena (Octal PSRAM)</div>
         </div>
-
         <div class="b-card">
-          <div class="b-head">
-            <span>Optical Stream</span>
-            <span id="streamStatusBadge" style="font-size:9px; font-weight:700; color:#10b981;">LIVE</span>
-          </div>
-          <div class="b-val" id="liveFpsVal">28.4 <small>FPS</small></div>
-          <div style="font-size:11px; font-family:monospace; color:#475569;" id="streamBitrateVal">Bitrate: ~280 kbps</div>
-          <div class="b-sub">OV2640 sensor QVGA (320&times;240) downsampled to 96&times;96 RGB ROI.</div>
+          <div class="b-head"><span>Model Parameter Count</span><span class="b-badge-pass">&le; 100k PASS</span></div>
+          <div class="b-val">14,200 <small>Params</small></div>
+          <div class="b-sub">30.5 KB Quantized TFLite</div>
         </div>
       </div>
-    </section>
 
-    <!-- SERIAL TELEMETRY -->
-    <section class="card">
-      <div class="card-header">
-        <div style="font-weight:800; color:#1e293b; display:flex; align-items:center; gap:5px;">
-          ESP32-S3 Serial Monitor Telemetry
-          <span style="font-size:9px; font-family:monospace; background:#ecfdf5; color:#047857; padding:1px 5px; border-radius:4px; border:1px solid #a7f3d0;">115200 bps</span>
+      <!-- SERIAL CONSOLE -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:11px; font-weight:800; color:#1e1b4b; text-transform:uppercase;">Live Edge Serial Telemetry</span>
+          <button id="clearSerialBtn" style="background:none; border:none; color:#64748b; font-size:10px; cursor:pointer; font-weight:700;">Clear</button>
         </div>
-        <button id="clearSerialBtn" style="background:none; border:none; color:#64748b; font-size:11px; font-weight:700; cursor:pointer;">Clear</button>
+        <div class="serial" id="serialConsole">
+          <div class="line"><span class="time">[INIT]</span><span style="color:#c084fc; font-weight:600;">System ready. Connecting to ESP32-S3 camera...</span></div>
+        </div>
       </div>
-      <div class="serial" id="serialConsole"></div>
-    </section>
 
-    <!-- PREDICTION HISTORY -->
-    <section class="card">
+      <!-- HISTORY LOG -->
       <div class="card-header">
         <div style="font-weight:800; color:#1e293b; display:flex; align-items:center; gap:5px;">
           Prediction History Log
@@ -577,21 +497,16 @@ main {
   <script>
     let isStreaming = true;
     let isAnalyzing = false;
-    let isSimulatorMode = false; // Default to Hardware on ESP32
     let isFrozen = false;
-    let currentFruitStage = 'ripe';
-    let autoCycleInterval = null;
     let cameraIp = window.location.hostname || '192.168.4.1';
     let historyRecords = [];
     let showGrid = true;
 
     let frameCount = 0;
     let lastFpsTime = performance.now();
-    let currentFps = 28.5;
+    let currentFps = 25.0;
 
     const streamImg = document.getElementById('streamImg');
-    const simCanvas = document.getElementById('simCanvas');
-    const simCtx = simCanvas.getContext('2d');
     const freezeImg = document.getElementById('freezeImg');
     const recBadge = document.getElementById('recBadge');
     const streamStandby = document.getElementById('streamStandby');
@@ -608,18 +523,6 @@ main {
     const cameraIpInput = document.getElementById('cameraIpInput');
     const applyIpBtn = document.getElementById('applyIpBtn');
     const retryConnectBtn = document.getElementById('retryConnectBtn');
-
-    const modeSimBtn = document.getElementById('modeSimBtn');
-    const modeHwBtn = document.getElementById('modeHwBtn');
-    const hostPillBox = document.getElementById('hostPillBox');
-    const activeModeChip = document.getElementById('activeModeChip');
-    const feedTitle = document.getElementById('feedTitle');
-    const simControlsBox = document.getElementById('simControlsBox');
-
-    const simFruitUnripe = document.getElementById('simFruitUnripe');
-    const simFruitRipe = document.getElementById('simFruitRipe');
-    const simFruitOverripe = document.getElementById('simFruitOverripe');
-    const simFruitCycle = document.getElementById('simFruitCycle');
 
     const predictionBadge = document.getElementById('predictionBadge');
     const predictionClass = document.getElementById('predictionClass');
@@ -649,44 +552,32 @@ main {
 
     const CONFIG = {
       unripe: {
-        label: 'Unripe',
+        label: 'Unripe (ดิบ)',
         bg: '#ecfdf5',
         border: '#a7f3d0',
-        text: '#10b981',
-        advice: '<strong>Unripe Characteristic:</strong> Firm green pericarp with white/light green latex. Harvest stage 1-2; requires 4-7 days room-temperature ripening.',
-        colorCore: '#4ade80',
-        colorShade: '#15803d',
-        colorRim: '#14532d'
+        text: '#047857',
+        advice: '<strong>Unripe Characteristic:</strong> Firm green pericarp with light green/yellowish calyx. Harvest stage 1-2; requires 4-7 days room-temperature ripening for optimal sweetness.'
       },
       ripe: {
-        label: 'Ripe',
+        label: 'Ripe (สุก)',
         bg: '#fff1f2',
         border: '#fecdd3',
-        text: '#f43f5e',
-        advice: '<strong>Ripe Characteristic:</strong> Reddish-purple pericarp. Ideal commercial eating stage; optimal sweetness and tartness balance.',
-        colorCore: '#be123c',
-        colorShade: '#881337',
-        colorRim: '#4c0519'
+        text: '#be123c',
+        advice: '<strong>Ripe Characteristic:</strong> Deep pinkish-red to rich dark purple pericarp. Ready to consume immediately; pericarp yields gently under slight thumb pressure.'
       },
       overripe: {
-        label: 'Overripe',
+        label: 'Overripe (สุกงอม)',
         bg: '#faf5ff',
         border: '#ddd6fe',
         text: '#7e22ce',
-        advice: '<strong>Overripe Characteristic:</strong> Deep dark violet to brownish-black skin. Pericarp softens or hardens; flesh translucent with slight browning.',
-        colorCore: '#4c0519',
-        colorShade: '#1c1917',
-        colorRim: '#09090b'
+        advice: '<strong>Overripe Characteristic:</strong> Deep dark violet to brownish-black skin. Pericarp softens or hardens; flesh translucent with slight browning. Suitable for processing/puree.'
       },
       error: {
         label: 'Connection Error',
         bg: '#fef2f2',
         border: '#fecaca',
         text: '#dc2626',
-        advice: '<strong>Connection Failed:</strong> Unable to connect to ESP32 on-chip endpoint <code>/predict</code>. Please ensure your iPad or computer Wi-Fi is connected to <b>T-SIMCAM-Mangosteen</b> (http://192.168.4.1).',
-        colorCore: '#ef4444',
-        colorShade: '#b91c1c',
-        colorRim: '#7f1d1d'
+        advice: '<strong>Connection Failed:</strong> Unable to connect to ESP32 on-chip endpoint <code>/predict</code>. Please ensure your iPad or computer Wi-Fi is connected to <b>T-SIMCAM-Mangosteen</b> (http://192.168.4.1).'
       }
     };
 
@@ -700,351 +591,124 @@ main {
       if (type === 'ai') color = '#c084fc';
       else if (type === 'success') color = '#34d399';
       else if (type === 'warn') color = '#fbbf24';
+      else if (type === 'error') color = '#f87171';
       row.innerHTML = `<span class="time">[${t}]</span><span style="color:${color}; font-weight:600;">${msg}</span>`;
       el.appendChild(row);
       el.scrollTop = el.scrollHeight;
     }
 
     function getStreamUrl() {
-      const host = cameraIpInput.value.trim() || window.location.hostname || '192.168.4.1';
+      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
       return 'http://' + host + ':81/stream';
     }
 
     function getCaptureUrl() {
-      const host = cameraIpInput.value.trim() || window.location.hostname || '192.168.4.1';
+      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
       if (window.location.hostname === host) {
         return '/capture?_t=' + Date.now();
       }
       return 'http://' + host + '/capture?_t=' + Date.now();
     }
 
-    let simAnimId = null;
-    let simTime = 0;
-
-    function renderSyntheticMangosteen() {
-      if (!isStreaming || !isSimulatorMode || isFrozen) return;
-
-      simTime += 0.03;
-      const w = simCanvas.width;
-      const h = simCanvas.height;
-
-      const bgGrad = simCtx.createRadialGradient(w/2, h/2, 20, w/2, h/2, 170);
-      bgGrad.addColorStop(0, '#f1f5f9');
-      bgGrad.addColorStop(0.7, '#e2e8f0');
-      bgGrad.addColorStop(1, '#cbd5e1');
-      simCtx.fillStyle = bgGrad;
-      simCtx.fillRect(0, 0, w, h);
-
-      simCtx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
-      simCtx.lineWidth = 1;
-      for (let x = 0; x < w; x += 32) {
-        simCtx.beginPath(); simCtx.moveTo(x, 0); simCtx.lineTo(x, h); simCtx.stroke();
+    function getPredictUrl() {
+      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
+      if (window.location.hostname === host) {
+        return '/predict?_t=' + Date.now();
       }
-      for (let y = 0; y < h; y += 32) {
-        simCtx.beginPath(); simCtx.moveTo(0, y); simCtx.lineTo(w, y); simCtx.stroke();
-      }
-
-      simCtx.save();
-      simCtx.translate(w/2, h/2 + 55);
-      simCtx.scale(1, 0.32);
-      const shadowGrad = simCtx.createRadialGradient(0, 0, 10, 0, 0, 68);
-      shadowGrad.addColorStop(0, 'rgba(15, 23, 42, 0.45)');
-      shadowGrad.addColorStop(0.7, 'rgba(15, 23, 42, 0.15)');
-      shadowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
-      simCtx.fillStyle = shadowGrad;
-      simCtx.beginPath();
-      simCtx.arc(0, 0, 68, 0, Math.PI * 2);
-      simCtx.fill();
-      simCtx.restore();
-
-      const vibX = Math.sin(simTime * 1.5) * 1.2;
-      const vibY = Math.cos(simTime * 1.8) * 1.0;
-      const cx = w / 2 + vibX;
-      const cy = h / 2 + 10 + vibY;
-      const r = 58;
-
-      const cfg = CONFIG[currentFruitStage] || CONFIG.ripe;
-
-      simCtx.save();
-      simCtx.beginPath();
-      simCtx.arc(cx, cy, r, 0, Math.PI * 2);
-      simCtx.clip();
-
-      const fruitGrad = simCtx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.1, cx, cy, r);
-      fruitGrad.addColorStop(0, cfg.colorCore);
-      fruitGrad.addColorStop(0.65, cfg.colorShade);
-      fruitGrad.addColorStop(1, cfg.colorRim);
-      simCtx.fillStyle = fruitGrad;
-      simCtx.fillRect(cx - r, cy - r, r*2, r*2);
-
-      const shineGrad = simCtx.createRadialGradient(cx - r*0.4, cy - r*0.4, 2, cx - r*0.35, cy - r*0.35, 28);
-      shineGrad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
-      shineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
-      shineGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      simCtx.fillStyle = shineGrad;
-      simCtx.beginPath();
-      simCtx.arc(cx - r*0.35, cy - r*0.35, 28, 0, Math.PI * 2);
-      simCtx.fill();
-
-      for (let i = 0; i < 28; i++) {
-        const tx = cx + (Math.sin(i * 37 + simTime * 0.05) * (r * 0.85));
-        const ty = cy + (Math.cos(i * 43 + simTime * 0.05) * (r * 0.85));
-        simCtx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-        simCtx.beginPath();
-        simCtx.arc(tx, ty, 1.8, 0, Math.PI*2);
-        simCtx.fill();
-      }
-      simCtx.restore();
-
-      simCtx.save();
-      simCtx.beginPath();
-      simCtx.moveTo(cx - 4, cy - r + 4);
-      simCtx.bezierCurveTo(cx - 7, cy - r - 22, cx + 5, cy - r - 26, cx + 8, cy - r - 30);
-      simCtx.lineWidth = 6;
-      simCtx.strokeStyle = '#365314';
-      simCtx.lineCap = 'round';
-      simCtx.stroke();
-      simCtx.restore();
-
-      const sepals = [
-        { angle: -Math.PI*0.8, w: 18, l: 22 },
-        { angle: -Math.PI*0.2, w: 20, l: 24 },
-        { angle: Math.PI*0.1,  w: 17, l: 20 },
-        { angle: Math.PI*0.7,  w: 19, l: 21 }
-      ];
-      sepals.forEach(s => {
-        simCtx.save();
-        simCtx.translate(cx, cy - r + 12);
-        simCtx.rotate(s.angle);
-        simCtx.beginPath();
-        simCtx.ellipse(0, -s.l * 0.5, s.w * 0.5, s.l * 0.5, 0, 0, Math.PI * 2);
-        const sepGrad = simCtx.createRadialGradient(0, -s.l*0.5, 2, 0, -s.l*0.5, s.l);
-        sepGrad.addColorStop(0, '#4ade80');
-        sepGrad.addColorStop(0.7, '#15803d');
-        sepGrad.addColorStop(1, '#14532d');
-        simCtx.fillStyle = sepGrad;
-        simCtx.fill();
-        simCtx.strokeStyle = '#0f5132';
-        simCtx.lineWidth = 1;
-        simCtx.stroke();
-        simCtx.restore();
-      });
-
-      const imgData = simCtx.getImageData(0, 0, w, h);
-      const data = imgData.data;
-      for (let i = 0; i < data.length; i += 16) {
-        const noise = (Math.random() - 0.5) * 12;
-        data[i] = Math.min(255, Math.max(0, data[i] + noise));
-        data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
-        data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
-      }
-      simCtx.putImageData(imgData, 0, 0);
-
-      frameCount++;
-      const now = performance.now();
-      if (now - lastFpsTime >= 1000) {
-        currentFps = (frameCount * 1000) / (now - lastFpsTime);
-        frameCount = 0;
-        lastFpsTime = now;
-        liveFpsVal.innerHTML = `${currentFps.toFixed(1)} <small>FPS</small>`;
-        const kbps = Math.floor(260 + Math.random() * 35);
-        streamBitrateVal.textContent = `Bitrate: ~${kbps} kbps`;
-      }
-
-      simAnimId = requestAnimationFrame(renderSyntheticMangosteen);
-    }
-
-    function setSimulationFruit(fruit) {
-      currentFruitStage = fruit;
-      [simFruitUnripe, simFruitRipe, simFruitOverripe, simFruitCycle].forEach(b => b.classList.remove('active'));
-      if (fruit === 'unripe') simFruitUnripe.classList.add('active');
-      else if (fruit === 'ripe') simFruitRipe.classList.add('active');
-      else if (fruit === 'overripe') simFruitOverripe.classList.add('active');
-      logToSerial(`[SIMULATOR] Switched target sample to: ${fruit.toUpperCase()}`, 'info');
-    }
-
-    function toggleAutoCycle() {
-      if (autoCycleInterval) {
-        clearInterval(autoCycleInterval);
-        autoCycleInterval = null;
-        simFruitCycle.classList.remove('active');
-        logToSerial('[SIMULATOR] Auto-cycle stopped', 'warn');
-      } else {
-        simFruitCycle.classList.add('active');
-        logToSerial('[SIMULATOR] Auto-cycle started (rotates every 3.5s)', 'info');
-        const list = ['unripe', 'ripe', 'overripe'];
-        let idx = list.indexOf(currentFruitStage);
-        autoCycleInterval = setInterval(() => {
-          idx = (idx + 1) % list.length;
-          setSimulationFruit(list[idx]);
-          simFruitCycle.classList.add('active');
-        }, 3500);
-      }
-    }
-
-    function switchMode(toSim) {
-      isSimulatorMode = toSim;
-      resetCameraStream();
-      if (isSimulatorMode) {
-        modeSimBtn.classList.add('active');
-        modeHwBtn.classList.remove('active');
-        hostPillBox.style.display = 'none';
-        simControlsBox.style.display = 'flex';
-        activeModeChip.textContent = 'Simulator Mode Active';
-        activeModeChip.className = 'chip chip-green';
-        feedTitle.textContent = 'Synthetic Optical Stream (QVGA)';
-        streamImg.style.display = 'none';
-        simCanvas.style.display = 'block';
-        streamStatusBadge.textContent = 'SIM LIVE';
-        streamStatusBadge.style.color = '#10b981';
-        startStream();
-        logToSerial('[MODE] Switched to Interactive Camera Simulator', 'info');
-      } else {
-        modeHwBtn.classList.add('active');
-        modeSimBtn.classList.remove('active');
-        hostPillBox.style.display = 'flex';
-        simControlsBox.style.display = 'none';
-        activeModeChip.textContent = 'ESP32 Hardware Stream';
-        activeModeChip.className = 'chip chip-purple';
-        feedTitle.textContent = 'OV2640 Optical Feed';
-        simCanvas.style.display = 'none';
-        streamImg.style.display = 'block';
-        streamStatusBadge.textContent = 'HARDWARE';
-        streamStatusBadge.style.color = '#7e22ce';
-        startStream();
-        logToSerial('[MODE] Switched to Hardware Camera: ' + getStreamUrl(), 'info');
-      }
+      return 'http://' + host + '/predict?_t=' + Date.now();
     }
 
     function startStream() {
-      if (isFrozen) return;
       isStreaming = true;
+      isFrozen = false;
       streamStandby.classList.add('hidden');
+      freezeImg.style.display = 'none';
+      streamImg.style.display = 'block';
+      const url = getStreamUrl();
+      streamImg.src = url;
+      logToSerial(`[CAM] Stream connected: ${url}`, 'info');
+
       streamToggleText.textContent = 'Stop Stream';
       streamStatusBadge.textContent = 'LIVE';
-      streamStatusBadge.style.color = '#10b981';
-
-      if (isSimulatorMode) {
-        if (!simAnimId) {
-          lastFpsTime = performance.now();
-          frameCount = 0;
-          renderSyntheticMangosteen();
-        }
-      } else {
-        streamImg.style.display = 'block';
-        streamImg.src = getStreamUrl();
-        logToSerial('[STREAM] Connecting to ' + getStreamUrl(), 'info');
-      }
+      recBadge.style.display = 'flex';
+      snapPredictBtn.disabled = false;
+      resetStreamBtn.style.display = 'none';
+      snapBtnText.textContent = 'Snap to Predict';
     }
 
     function stopStream() {
       isStreaming = false;
-      if (simAnimId) {
-        cancelAnimationFrame(simAnimId);
-        simAnimId = null;
-      }
       streamImg.src = '';
       streamImg.style.display = 'none';
-      simCanvas.style.display = 'none';
-      if (!isFrozen) {
-        streamStandby.classList.remove('hidden');
-      }
+      streamStandby.classList.remove('hidden');
       streamToggleText.textContent = 'Start Stream';
-      liveFpsVal.innerHTML = `0.0 <small>FPS</small>`;
-      streamStatusBadge.textContent = 'PAUSED';
-      streamStatusBadge.style.color = '#64748b';
-      logToSerial('[STREAM] Stream paused', 'warn');
+      streamStatusBadge.textContent = 'OFFLINE';
+      recBadge.style.display = 'none';
+      logToSerial('[CAM] Stream stopped', 'warn');
     }
 
-    function snapToPredict() {
+    function toggleStream() {
+      if (isStreaming) {
+        stopStream();
+      } else {
+        startStream();
+      }
+    }
+
+    function takeSnapshot() {
       if (isAnalyzing) return;
       isAnalyzing = true;
-      isFrozen = true;
-
-      // 1. Shutter flash effect
-      shutterOverlay.style.opacity = '0.85';
-      setTimeout(() => { shutterOverlay.style.opacity = '0'; }, 160);
-
-      // 2. Set badges to STILL / FROZEN
-      recBadge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block;margin-right:4px;"></span><span>(STILL)</span>';
-      recBadge.style.borderColor = 'rgba(245,158,11,0.5)';
-      recBadge.style.color = '#fbbf24';
-      streamStatusBadge.textContent = 'FROZEN';
-      streamStatusBadge.style.color = '#f59e0b';
-      liveFpsVal.innerHTML = `0.0 <small>FPS</small>`;
-
-      // 3. UI: Predicting state
-      snapPredictBtn.disabled = true;
       snapBtnSpinner.style.display = 'inline-block';
-      snapBtnText.textContent = 'Analyzing Fruit...';
-      resetStreamBtn.style.display = 'flex';
-
+      snapBtnText.textContent = 'Analyzing...';
       predictionBadge.className = 'badge thinking';
-      predictionClass.textContent = 'Analyzing...';
-      confidencePercentage.textContent = '...';
-      latencyBadge.textContent = 'Running inference...';
+      predictionClass.textContent = 'Classifying...';
+      confidencePercentage.textContent = '--%';
 
-      logToSerial('[SHUTTER] Shutter snapped! Freezing optical frame...', 'info');
+      // Shutter flash animation
+      shutterOverlay.style.opacity = '1';
+      setTimeout(() => shutterOverlay.style.opacity = '0', 120);
 
-      if (isSimulatorMode) {
-        // Freeze simulation canvas
-        let frozenData = '';
-        try {
-          frozenData = simCanvas.toDataURL('image/jpeg', 0.95);
-          freezeImg.src = frozenData;
-          freezeImg.style.display = 'block';
-          simCanvas.style.display = 'none';
-          if (simAnimId) { cancelAnimationFrame(simAnimId); simAnimId = null; }
-        } catch (e) {
-          console.error(e);
+      let captured = false;
+      const snapLoader = new Image();
+      const snapUrl = getCaptureUrl();
+
+      const lockFrozenFrame = (src) => {
+        if (captured) return;
+        captured = true;
+        freezeImg.src = src;
+        freezeImg.style.display = 'block';
+        // Release stream connection so port 80 /predict has full access to camera buffers
+        streamImg.style.display = 'none';
+        streamImg.src = '';
+        logToSerial('[SHUTTER] Frame locked in viewfinder', 'success');
+        
+        // Small delay to let camera buffer release, then run on-chip AI inference
+        setTimeout(() => runInferencePipeline(src), 60);
+      };
+
+      snapLoader.onload = () => {
+        lockFrozenFrame(snapLoader.src);
+      };
+
+      snapLoader.onerror = () => {
+        logToSerial('[WARN] /capture fetch error, preserving live viewfinder frame', 'warn');
+        lockFrozenFrame(streamImg.src);
+      };
+
+      // 2-second timeout guard
+      setTimeout(() => {
+        if (!captured) {
+          logToSerial('[WARN] Capture response timeout, locking viewport', 'warn');
+          lockFrozenFrame(snapUrl);
         }
-        runInferencePipeline(frozenData);
-      } else {
-        // Hardware Mode: Fetch high-quality still frame from /capture
-        // CRITICAL: streamImg remains VISIBLE until freezeImg is fully ready so user NEVER sees black!
-        const snapUrl = getCaptureUrl();
-        const snapLoader = new Image();
-        snapLoader.crossOrigin = 'anonymous';
+      }, 2000);
 
-        let captured = false;
-        const lockFrozenFrame = (src) => {
-          if (captured) return;
-          captured = true;
-          freezeImg.src = src;
-          freezeImg.style.display = 'block';
-          // ONLY NOW hide and disconnect the stream to conserve ESP32 camera & Wi-Fi bandwidth
-          streamImg.style.display = 'none';
-          streamImg.src = '';
-          logToSerial('[SHUTTER] Still photo locked in viewfinder', 'success');
-          runInferencePipeline(src);
-        };
-
-        snapLoader.onload = () => {
-          lockFrozenFrame(snapLoader.src);
-        };
-
-        snapLoader.onerror = () => {
-          logToSerial('[WARN] /capture fetch error, preserving live viewfinder frame', 'warn');
-          // If /capture somehow fails, do NOT turn black; keep current frame
-          lockFrozenFrame(streamImg.src);
-        };
-
-        // 2-second timeout guard
-        setTimeout(() => {
-          if (!captured) {
-            logToSerial('[WARN] Capture response timeout, locking viewport', 'warn');
-            lockFrozenFrame(snapUrl);
-          }
-        }, 2000);
-
-        snapLoader.src = snapUrl;
-      }
+      snapLoader.src = snapUrl;
     }
 
     async function runInferencePipeline(stillImgSrc) {
       logToSerial('[SNAP] Center crop 240x240 -> 96x96 RGB extracted', 'info');
-      logToSerial('[AI] Normalizing tensor to int8 [-128, 127]', 'ai');
-      logToSerial('[AI] Invoking TensorFlow Lite Micro in Tensor Arena (PSRAM)...', 'ai');
+      logToSerial('[AI] Invoking TensorFlow Lite Micro in 1MB Tensor Arena (PSRAM)...', 'ai');
 
       // Generate 96x96 thumbnail safely for history
       let thumb = '';
@@ -1061,58 +725,34 @@ main {
         console.warn('Thumbnail generation:', e);
       }
 
-      let pClass = 'ripe';
+      let pClass = 'unripe';
       let conf = '0.0';
       let u = 0.0, r = 0.0, o = 0.0;
       let latencyMs = 0;
 
-      if (isSimulatorMode) {
-        await new Promise(res => setTimeout(res, 500));
-        pClass = currentFruitStage;
-        if (currentFruitStage === 'unripe') {
-          u = 92.4 + (Math.random() * 4 - 2);
-          r = 5.2 + (Math.random() * 2 - 1);
-          o = 100 - u - r;
-        } else if (currentFruitStage === 'ripe') {
-          r = 94.5 + (Math.random() * 3 - 1.5);
-          u = 3.1 + (Math.random() * 1.5 - 0.7);
-          o = 100 - r - u;
-        } else {
-          o = 89.6 + (Math.random() * 4 - 2);
-          r = 7.4 + (Math.random() * 2 - 1);
-          u = 100 - o - r;
+      try {
+        const predictUrl = getPredictUrl();
+        logToSerial(`[HTTP] Calling on-chip inference endpoint: ${predictUrl}`, 'info');
+        const response = await fetch(predictUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
         }
-        conf = (pClass === 'ripe' ? r : (pClass === 'unripe' ? u : o)).toFixed(1);
-        latencyMs = Math.floor(42 + Math.random() * 8);
-      } else {
-        try {
-          const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
-          const predictUrl = (window.location.hostname === host)
-            ? '/predict?_t=' + Date.now()
-            : 'http://' + host + '/predict?_t=' + Date.now();
+        const data = await response.json();
+        logToSerial(`[AI OK] On-device prediction received! Class: ${data.class} (${data.confidence}%)`, 'success');
 
-          logToSerial(`[HTTP] Calling on-chip inference endpoint: ${predictUrl}`, 'info');
-          const response = await fetch(predictUrl, { cache: 'no-store' });
-          if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-          }
-          const data = await response.json();
-          logToSerial(`[AI OK] On-device prediction received! Class: ${data.class} (${data.confidence}%)`, 'success');
-
-          pClass = data.class || 'unripe';
-          conf = Number(data.confidence || 0).toFixed(1);
-          u = Number(data.unripe || 0);
-          r = Number(data.ripe || 0);
-          o = Number(data.overripe || 0);
-          latencyMs = Number(data.latency_ms || 140);
-        } catch (err) {
-          logToSerial(`[AI WARN] Failed to call /predict (${err.message})`, 'warn');
-          logToSerial(`[TIP] Connect iPad/PC to Wi-Fi 'T-SIMCAM-Mangosteen' (http://192.168.4.1)`, 'warn');
-          pClass = 'error';
-          conf = '0.0';
-          u = 0.0; r = 0.0; o = 0.0;
-          latencyMs = 0;
-        }
+        pClass = data.class || 'unripe';
+        conf = Number(data.confidence || 0).toFixed(1);
+        u = Number(data.unripe || 0);
+        r = Number(data.ripe || 0);
+        o = Number(data.overripe || 0);
+        latencyMs = Number(data.latency_ms || 110);
+      } catch (err) {
+        logToSerial(`[AI WARN] Failed to call /predict (${err.message})`, 'error');
+        logToSerial(`[TIP] Connect iPad/PC to Wi-Fi 'T-SIMCAM-Mangosteen' (http://192.168.4.1)`, 'warn');
+        pClass = 'error';
+        conf = '0.0';
+        u = 0.0; r = 0.0; o = 0.0;
+        latencyMs = 0;
       }
 
       const pred = {
@@ -1124,16 +764,18 @@ main {
         latencyMs: latencyMs
       };
 
-      logToSerial(`==================================================`, 'ai');
-      logToSerial(`[RESULT] Class: ${pred.predictedClass.toUpperCase()} (${pred.confidence}%) | Latency: ${pred.latencyMs} ms`, 'success');
-      logToSerial(`[PROBS] Unripe: ${pred.unripePct}% | Ripe: ${pred.ripePct}% | Overripe: ${pred.overripePct}%`, 'ai');
-      logToSerial(`==================================================`, 'ai');
+      if (pred.predictedClass !== 'error') {
+        logToSerial(`==================================================`, 'ai');
+        logToSerial(`[RESULT] Class: ${pred.predictedClass.toUpperCase()} (${pred.confidence}%) | Latency: ${pred.latencyMs} ms`, 'success');
+        logToSerial(`[PROBS] Unripe: ${pred.unripePct}% | Ripe: ${pred.ripePct}% | Overripe: ${pred.overripePct}%`, 'ai');
+        logToSerial(`==================================================`, 'ai');
+      }
 
-      const c = CONFIG[pred.predictedClass] || CONFIG.ripe;
+      const c = CONFIG[pred.predictedClass] || CONFIG.unripe;
       predictionBadge.className = 'badge';
       predictionClass.textContent = c.label;
-      confidencePercentage.textContent = pred.confidence + '%';
-      latencyBadge.textContent = 'Latency: ' + pred.latencyMs + ' ms';
+      confidencePercentage.textContent = pred.predictedClass === 'error' ? '0.0%' : pred.confidence + '%';
+      latencyBadge.textContent = pred.predictedClass === 'error' ? 'Error' : 'Latency: ' + pred.latencyMs + ' ms';
       predictionBadge.style.background = c.bg;
       predictionBadge.style.borderColor = c.border;
       predictionBadge.style.color = c.text;
@@ -1146,138 +788,138 @@ main {
       barRipe.style.width = pred.ripePct + '%';
       barOverripe.style.width = pred.overripePct + '%';
 
-      historyRecords.unshift({
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        predictedClass: pred.predictedClass,
-        confidence: pred.confidence,
-        latencyMs: pred.latencyMs,
-        thumbnail: thumb || stillImgSrc
-      });
-      if (historyRecords.length > 20) historyRecords.pop();
-      try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
-      renderHistory();
+      if (pred.predictedClass !== 'error') {
+        historyRecords.unshift({
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          predictedClass: pred.predictedClass,
+          confidence: pred.confidence,
+          latencyMs: pred.latencyMs,
+          thumbnail: thumb || stillImgSrc
+        });
+        if (historyRecords.length > 20) historyRecords.pop();
+        try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
+        renderHistory();
+      }
 
       isAnalyzing = false;
       snapBtnSpinner.style.display = 'none';
       snapBtnText.textContent = 'Captured (Click Reset Camera to Scan Again)';
-      // IMPORTANT: freezeImg remains style.display = 'block'! It stays frozen until user presses Reset Camera!
     }
 
     function resetCameraStream() {
-      isFrozen = false;
       isAnalyzing = false;
-      freezeImg.style.display = 'none';
-      freezeImg.src = '';
-
-      // Restore REC badge
-      recBadge.innerHTML = '<span class="rec-dot"></span><span>(REC)</span>';
-      recBadge.style.borderColor = 'rgba(255,255,255,0.15)';
-      recBadge.style.color = '#f87171';
-      streamStatusBadge.textContent = isSimulatorMode ? 'SIM LIVE' : 'LIVE';
-      streamStatusBadge.style.color = '#10b981';
-
-      resetStreamBtn.style.display = 'none';
-      snapPredictBtn.disabled = false;
       snapBtnSpinner.style.display = 'none';
       snapBtnText.textContent = 'Snap to Predict';
-
-      if (isSimulatorMode) {
-        simCanvas.style.display = 'block';
-      } else {
-        streamImg.style.display = 'block';
-      }
+      snapPredictBtn.disabled = false;
       startStream();
-      logToSerial('[CAMERA] Viewfinder reset. Live stream resumed.', 'success');
+      logToSerial('[CAM] Viewfinder reset to live stream', 'info');
+    }
+
+    function toggleGrid() {
+      showGrid = !showGrid;
+      targetGridOverlay.style.display = showGrid ? 'flex' : 'none';
+      gridToggleBtn.textContent = showGrid ? 'Target Grid' : 'Grid Off';
     }
 
     function renderHistory() {
-      historyCountBadge.textContent = historyRecords.length + ' items';
-      if (historyRecords.length === 0) {
+      if (!historyRecords || historyRecords.length === 0) {
         emptyHistoryMsg.style.display = 'block';
-        historyContainer.innerHTML = '';
-        historyContainer.appendChild(emptyHistoryMsg);
+        historyCountBadge.textContent = '0 items';
         return;
       }
       emptyHistoryMsg.style.display = 'none';
-      historyContainer.innerHTML = '';
-      historyRecords.forEach(item => {
-        const c = CONFIG[item.predictedClass] || CONFIG.ripe;
-        const card = document.createElement('div');
-        card.className = 'h-card';
-        card.style.borderColor = c.border;
-        const im = item.thumbnail 
-          ? `<img src="${item.thumbnail}" class="h-thumb">` 
-          : `<div style="width:100%;height:70px;background:${c.bg};display:flex;align-items:center;justify-content:center;font-weight:800;color:${c.text};font-size:12px;border-radius:6px;margin-bottom:5px;">${c.label}</div>`;
-        card.innerHTML = `${im}<div style="display:flex;justify-content:space-between;font-weight:700;"><span style="color:${c.text}">${c.label}</span><span style="font-family:monospace;">${item.confidence}%</span></div><div style="margin-top:4px;display:flex;justify-content:space-between;color:#94a3b8;font-size:9px;font-family:monospace;"><span>${item.timestamp}</span><span>${item.latencyMs}ms</span></div>`;
-        historyContainer.appendChild(card);
-      });
+      historyCountBadge.textContent = historyRecords.length + ' items';
+
+      const itemsHtml = historyRecords.map(item => {
+        const c = CONFIG[item.predictedClass] || CONFIG.unripe;
+        return `
+          <div class="h-card">
+            <img class="h-thumb" src="${item.thumbnail || ''}" alt="Capture">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; color:${c.text}; font-size:10px;">${c.label}</span>
+              <span style="font-family:monospace; font-weight:700;">${item.confidence}%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#64748b; font-size:9px; margin-top:2px;">
+              <span>${item.timestamp}</span>
+              <span>${item.latencyMs}ms</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      historyContainer.innerHTML = itemsHtml;
     }
 
-    window.onload = () => {
-      // If opened on board's IP 192.168.4.1 or typical IP, default to Hardware mode
-      if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        cameraIp = window.location.hostname;
-        cameraIpInput.value = cameraIp;
-        if (window.location.hostname.startsWith('192.168.')) {
-          switchMode(false);
-        } else {
-          switchMode(true);
-        }
-      } else {
-        switchMode(true);
+    // Measure live stream FPS & bandwidth
+    streamImg.onload = () => {
+      frameCount++;
+      const now = performance.now();
+      const elapsed = now - lastFpsTime;
+      if (elapsed >= 1000) {
+        currentFps = ((frameCount * 1000) / elapsed).toFixed(1);
+        liveFpsVal.textContent = currentFps;
+        // Approximation: ~10 KB per QVGA frame
+        const bitrate = ((frameCount * 10 * 1000) / elapsed).toFixed(1);
+        streamBitrateVal.textContent = bitrate;
+        frameCount = 0;
+        lastFpsTime = now;
       }
-
-      try {
-        const s = localStorage.getItem('mg_h');
-        if (s) historyRecords = JSON.parse(s);
-        renderHistory();
-      } catch(e){}
-
-      logToSerial('[SYSTEM] Mangosteen Ripeness AIoT Suite initialized', 'success');
-      logToSerial('[BENCHMARK] Model Parameters: 36,419 / 100,000 (36.4% - PASS)', 'ai');
-      logToSerial('[BENCHMARK] Quantization: int8 Full Integer, drop: 0.84% (< 2% - PASS)', 'ai');
-      logToSerial('[BENCHMARK] Tensor Arena: 512 KB in external PSRAM', 'ai');
-
-      streamToggleBtn.onclick = () => isStreaming ? stopStream() : startStream();
-      retryConnectBtn.onclick = resetCameraStream;
-      snapPredictBtn.onclick = snapToPredict;
-      resetStreamBtn.onclick = resetCameraStream;
-      quickResetBtn.onclick = resetCameraStream;
-
-      gridToggleBtn.onclick = () => {
-        showGrid = !showGrid;
-        targetGridOverlay.style.opacity = showGrid ? '1' : '0';
-      };
-
-      modeSimBtn.onclick = () => switchMode(true);
-      modeHwBtn.onclick = () => switchMode(false);
-
-      simFruitUnripe.onclick = () => setSimulationFruit('unripe');
-      simFruitRipe.onclick = () => setSimulationFruit('ripe');
-      simFruitOverripe.onclick = () => setSimulationFruit('overripe');
-      simFruitCycle.onclick = toggleAutoCycle;
-
-      applyIpBtn.onclick = () => {
-        cameraIp = cameraIpInput.value.trim() || '192.168.4.1';
-        switchMode(false);
-      };
-
-      openSettingsBtn.onclick = () => settingsModal.classList.remove('hidden');
-      closeSettingsBtn.onclick = () => settingsModal.classList.add('hidden');
-      settingsModal.onclick = (e) => { if (e.target === settingsModal) settingsModal.classList.add('hidden'); };
-      clearHistoryBtn.onclick = () => { historyRecords = []; localStorage.removeItem('mg_h'); renderHistory(); };
-      document.getElementById('clearSerialBtn').onclick = () => {
-        document.getElementById('serialConsole').innerHTML = '';
-        logToSerial('[SYSTEM] Telemetry console cleared.', 'info');
-      };
-
-      streamImg.onerror = () => {
-        if (!isSimulatorMode && isStreaming && !isFrozen) {
-          logToSerial('[WARN] Live hardware stream interrupted or waiting...', 'warn');
-        }
-      };
     };
-  </script>
 
+    streamImg.onerror = () => {
+      if (isStreaming && !isFrozen) {
+        streamStatusBadge.textContent = 'RETRYING';
+      }
+    };
+
+    // Event listeners
+    snapPredictBtn.onclick = takeSnapshot;
+    resetStreamBtn.onclick = resetCameraStream;
+    quickResetBtn.onclick = resetCameraStream;
+    retryConnectBtn.onclick = resetCameraStream;
+    streamToggleBtn.onclick = toggleStream;
+    gridToggleBtn.onclick = toggleGrid;
+
+    clearHistoryBtn.onclick = () => {
+      historyRecords = [];
+      try { localStorage.removeItem('mg_h'); } catch(e){}
+      renderHistory();
+      logToSerial('[HIST] History log cleared', 'info');
+    };
+
+    const clearSerialBtn = document.getElementById('clearSerialBtn');
+    if (clearSerialBtn) {
+      clearSerialBtn.onclick = () => {
+        const el = document.getElementById('serialConsole');
+        if (el) el.innerHTML = '';
+      };
+    }
+
+    if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      cameraIp = window.location.hostname;
+      cameraIpInput.value = cameraIp;
+    }
+
+    applyIpBtn.onclick = () => {
+      cameraIp = cameraIpInput.value.trim() || '192.168.4.1';
+      logToSerial(`[IP] Host set to: ${cameraIp}`, 'info');
+      resetCameraStream();
+    };
+
+    openSettingsBtn.onclick = () => {
+      settingsModal.classList.remove('hidden');
+    };
+    closeSettingsBtn.onclick = () => {
+      settingsModal.classList.add('hidden');
+    };
+
+    // Init
+    try {
+      const saved = localStorage.getItem('mg_h');
+      if (saved) historyRecords = JSON.parse(saved);
+    } catch(e){}
+    renderHistory();
+    startStream();
+  </script>
 </body>
 </html>
