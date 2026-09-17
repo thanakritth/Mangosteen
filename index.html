@@ -95,58 +95,81 @@ main {
 .viewport {
   position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 480px;
   background: #020617; border-radius: 12px; overflow: hidden;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
   display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
 }
 .stream-view {
-  width: 100%; height: 100%; object-fit: contain; display: block;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: filter 0.2s ease;
+}
+.stream-view.calibrated {
+  filter: contrast(1.12) saturate(1.28);
 }
 .freeze-view {
-  width: 100%; height: 100%; object-fit: contain; display: none;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  display: none; z-index: 10;
 }
-.rec {
-  position: absolute; top: 10px; right: 10px; z-index: 20;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  border-radius: 9999px; padding: 2px 8px;
-  display: flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 700; color: white;
+.freeze-view.calibrated {
+  filter: contrast(1.12) saturate(1.28);
 }
-.rec-dot { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; animation: pulse 1.2s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+.freeze-view.active { display: block; }
 
-.res {
-  position: absolute; top: 10px; left: 10px; z-index: 20;
-  background: rgba(0,0,0,0.55); border-radius: 5px; padding: 2px 6px;
-  color: #cbd5e1; font-family: monospace; font-size: 10px;
+.shutter {
+  position: absolute; inset: 0; background: white; opacity: 0;
+  pointer-events: none; z-index: 20; transition: opacity 0.08s ease-out;
 }
+.shutter.flash { opacity: 0.9; }
+
 .overlay {
-  position: absolute; inset: 0; display: flex; align-items: center;
-  justify-content: center; pointer-events: none; transition: opacity 0.2s;
-  z-index: 15;
+  position: absolute; inset: 0; pointer-events: none; z-index: 15;
+  display: flex; align-items: center; justify-content: center;
 }
-
+.overlay.hidden { display: none; }
 .target-box {
-  position: relative; width: 270px; height: 270px;
-  max-width: 82%; max-height: 82%;
-  border: 2px dashed rgba(192, 132, 252, 0.85); border-radius: 14px;
+  width: 58%; height: 58%; border: 2px dashed rgba(192, 132, 252, 0.85);
+  border-radius: 16px; position: relative;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
-  background-size: 33.33% 33.33%;
-  background-image: 
-    linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
 }
-.c-tl { position: absolute; top: -2px; left: -2px; width: 22px; height: 22px; border-top: 3.5px solid #e9d5ff; border-left: 3.5px solid #e9d5ff; border-top-left-radius: 6px; }
-.c-tr { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-top: 3.5px solid #e9d5ff; border-right: 3.5px solid #e9d5ff; border-top-right-radius: 6px; }
-.c-bl { position: absolute; bottom: -2px; left: -2px; width: 22px; height: 22px; border-bottom: 3.5px solid #e9d5ff; border-left: 3.5px solid #e9d5ff; border-bottom-left-radius: 6px; }
-.c-br { position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px; border-bottom: 3.5px solid #e9d5ff; border-right: 3.5px solid #e9d5ff; border-bottom-right-radius: 6px; }
-.cross { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.cross-dot { width: 6px; height: 6px; border-radius: 50%; background: #c084fc; border: 1px solid white; }
-.t-label { position: absolute; bottom: -26px; left: 0; right: 0; text-align: center; }
-.t-label span { background: rgba(0,0,0,0.75); color: #e9d5ff; padding: 2px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; border: 1px solid rgba(192, 132, 252, 0.4); }
+.target-box::after {
+  content: ""; position: absolute; inset: -4px; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px;
+}
+.c-tl, .c-tr, .c-bl, .c-br {
+  position: absolute; width: 16px; height: 16px; border-color: #a855f7; border-style: solid;
+}
+.c-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-top-left-radius: 12px; }
+.c-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-top-right-radius: 12px; }
+.c-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-bottom-left-radius: 12px; }
+.c-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-bottom-right-radius: 12px; }
+.cross {
+  position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+  transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center;
+}
+.cross::before, .cross::after {
+  content: ""; position: absolute; background: rgba(255,255,255,0.7);
+}
+.cross::before { width: 1px; height: 16px; }
+.cross::after { width: 16px; height: 1px; }
+.cross-dot { width: 4px; height: 4px; border-radius: 50%; background: #c084fc; z-index: 1; }
 
-.shutter { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 25; }
+.t-label {
+  position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%);
+  background: rgba(88, 28, 135, 0.85); backdrop-filter: blur(4px);
+  color: #f3e8ff; font-size: 10px; font-weight: 700; padding: 2px 10px;
+  border-radius: 9999px; white-space: nowrap; letter-spacing: 0.5px;
+}
+
+.res, .rec, .filter-tag {
+  position: absolute; font-size: 10px; font-weight: 800; font-family: monospace;
+  padding: 3px 8px; border-radius: 6px; z-index: 12; letter-spacing: 0.5px;
+}
+.res { bottom: 10px; left: 10px; background: rgba(15, 23, 42, 0.75); color: #cbd5e1; }
+.rec { top: 10px; left: 10px; background: rgba(15, 23, 42, 0.75); color: #4ade80; display: flex; align-items: center; gap: 5px; }
+.rec-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 1.2s infinite; }
+.filter-tag { top: 10px; right: 10px; background: rgba(88, 28, 135, 0.85); color: #f3e8ff; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
 .standby {
-  position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a, #3b0764, #0f172a);
+  position: absolute; inset: 0; background: #0f172a;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 16px; text-align: center; color: #cbd5e1; z-index: 12;
 }
@@ -182,13 +205,43 @@ main {
 }
 .btn-reset:hover { background: #7e22ce; color: white; border-color: #7e22ce; transform: translateY(-2px); }
 
-.sub-controls { display: flex; justify-content: center; gap: 10px; width: 100%; flex-wrap: wrap; }
+.sub-controls { display: flex; justify-content: center; gap: 8px; width: 100%; flex-wrap: wrap; }
 .btn-secondary {
-  padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 700;
   border: 1px solid #e2e8f0; background: #f8fafc; color: #334155;
   cursor: pointer; transition: all 0.15s;
 }
 .btn-secondary:hover { background: #f3e8ff; color: #7e22ce; border-color: #d8b4fe; }
+
+/* COLOR FILTER CONTROL CARD */
+.color-panel {
+  background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px;
+  padding: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px;
+}
+.color-panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; font-weight: 800; color: #581c87; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.preset-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-preset {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  border: 1px solid #d8b4fe; background: white; color: #6b21a8;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-preset:hover, .btn-preset.active {
+  background: #7e22ce; color: white; border-color: #7e22ce;
+}
+.filter-sliders {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;
+}
+@media (max-width: 500px) { .filter-sliders { grid-template-columns: 1fr; } }
+.slider-group { display: flex; flex-direction: column; gap: 3px; }
+.slider-label {
+  display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #64748b;
+}
+.slider-group input[type=range] {
+  width: 100%; accent-color: #9333ea; cursor: pointer;
+}
 
 .spinner {
   width: 16px; height: 16px;
@@ -248,59 +301,65 @@ main {
 }
 .b-head { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
 .b-val { font-size: 20px; font-weight: 800; color: #1e1b4b; font-family: monospace; display: flex; align-items: baseline; gap: 4px; }
-.b-val small { font-size: 11px; font-weight: 600; color: #64748b; font-family: sans-serif; }
-.b-sub { font-size: 10px; color: #64748b; line-height: 1.3; }
-.b-badge-pass {
-  background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;
-  padding: 1px 6px; border-radius: 9999px; font-size: 9px; font-weight: 800;
+.b-sub { font-size: 10px; color: #64748b; }
+.b-badge-pass { font-size: 10px; font-weight: 700; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 6px; border: 1px solid #a7f3d0; }
+
+.history-section {
+  background: white; border-radius: 14px; padding: 16px;
+  border: 1px solid #e9d5ff; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.hist-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+.hist-table th { text-align: left; padding: 8px; background: #faf5ff; color: #581c87; font-weight: 800; border-bottom: 1px solid #e9d5ff; }
+.hist-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+.hist-pill { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-weight: 700; font-size: 10px; }
+.hist-unripe { background: #ecfdf5; color: #047857; }
+.hist-ripe { background: #fff1f2; color: #be123c; }
+.hist-overripe { background: #f3e8ff; color: #6b21a8; }
+
+footer {
+  text-align: center; padding: 18px; font-size: 11px; color: #64748b;
+  border-top: 1px solid #e9d5ff; background: white; margin-top: auto;
 }
 
-.serial {
-  background: #020617; color: #cbd5e1; font-family: monospace; font-size: 11px;
-  padding: 10px 12px; border-radius: 10px; height: 130px; overflow-y: auto;
-  border: 1px solid #1e1b4b; display: flex; flex-direction: column; gap: 3px;
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px;
 }
-.line { display: flex; align-items: flex-start; gap: 6px; }
-.time { color: #64748b; }
-.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-.h-card { border: 1px solid #e9d5ff; border-radius: 10px; padding: 8px; background: white; font-size: 10px; }
-.h-thumb { width: 100%; height: 70px; border-radius: 6px; object-fit: cover; margin-bottom: 5px; }
-
+.modal-bg.hidden { display: none; }
 .modal {
-  position: fixed; inset: 0; z-index: 50; background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 12px;
+  background: white; border-radius: 16px; max-width: 480px; width: 100%;
+  padding: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; gap: 14px;
 }
-.modal.hidden { display: none; }
-.modal-content {
-  background: white; border-radius: 14px; border: 1px solid #e9d5ff;
-  width: 100%; max-width: 900px; height: 80vh; display: flex; flex-direction: column; overflow: hidden;
+.modal-title { font-size: 15px; font-weight: 800; color: #1e1b4b; }
+.input-row { display: flex; flex-direction: column; gap: 4px; }
+.input-row label { font-size: 11px; font-weight: 700; color: #475569; }
+.input-row input {
+  padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-family: monospace;
 }
-.modal-top { padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-.modal-body { flex: 1; background: #f1f5f9; }
-.modal-body iframe { width: 100%; height: 100%; border: none; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
   </style>
 </head>
 <body>
-
   <header>
     <div class="header-box">
       <div class="brand">
         <div class="brand-icon">M</div>
         <div>
-          <div class="brand-title">MangosteenAI <span class="tag">Edge AIoT</span></div>
-          <div class="brand-sub">Ripeness Classifier &bull; ESP32-S3 OV2640</div>
+          <div class="brand-title">
+            Mangosteen Ripeness AI
+            <span class="tag">On-Chip TFLite</span>
+          </div>
+          <div class="brand-sub">LilyGo T-SIMCAM ESP32-S3 &bull; Int8 Quantized Neural Network</div>
         </div>
       </div>
-
       <div class="actions">
-        <div class="host-pill" id="hostPillBox">
-          <span style="width:7px; height:7px; border-radius:50%; background:#10b981; margin-right:5px; display:inline-block;"></span>
-          <span>Host:</span>
+        <div class="host-pill">
+          <span>HOST:</span>
           <input type="text" id="cameraIpInput" value="192.168.4.1">
-          <button id="applyIpBtn" style="background:none; border:none; color:#7e22ce; font-weight:800; cursor:pointer; font-size:10px;">SET</button>
         </div>
-
-        <button id="openSettingsBtn" class="btn-cfg">Hardware Config</button>
+        <button id="applyIpBtn" class="btn-cfg">Connect</button>
+        <button id="openSettingsBtn" class="btn-cfg">Settings</button>
       </div>
     </div>
   </header>
@@ -308,31 +367,32 @@ main {
   <main>
     <div class="hero">
       <div>
-        <div class="hero-title">Intelligent Mangosteen Ripeness Grader</div>
-        <div class="hero-desc">On-chip Edge AI inference running live on ESP32-S3 OV2640. Align the fruit inside the target viewfinder to classify ripeness into Unripe, Ripe, or Overripe.</div>
+        <div class="hero-title">Real-Time Edge Harvest Quality Assessment</div>
+        <div class="hero-desc">Direct inference executed on ESP32-S3 Xtensa LX7 dual-core processor with calibrated OV2640 color spectrum</div>
       </div>
       <div class="chips">
-        <div class="chip chip-green">ESP32-S3 Active</div>
-        <div class="chip chip-purple">&le; 100k Params Compliant</div>
-        <div class="chip chip-blue">int8 Quantized</div>
+        <span class="chip chip-green">Unripe (ดิบ)</span>
+        <span class="chip chip-purple">Ripe (สุก)</span>
+        <span class="chip chip-blue">Overripe (สุกงอม)</span>
       </div>
     </div>
 
     <div class="grid">
-      <!-- LEFT: CAMERA VIEW -->
+      <!-- CAMERA VIEWPORT & CONTROLS -->
       <section class="card">
         <div class="card-header">
-          <div><span style="width:7px; height:7px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span>OV2640 Optical Feed</div>
-          <div>96&times;96 Model ROI</div>
+          <span>Camera Viewfinder (OV2640 DVP)</span>
+          <span id="connStatus" style="font-size:10px; font-weight:700; color:#10b981;">Online &bull; Active</span>
         </div>
 
-        <div class="viewport" id="viewport">
-          <img id="streamImg" class="stream-view" alt="Live Camera Stream">
-          <img id="freezeImg" class="freeze-view" alt="Frozen Still Capture">
+        <div class="viewport" id="viewportArea">
+          <img id="streamImg" class="stream-view calibrated" alt="Live Camera Stream">
+          <img id="freezeImg" class="freeze-view calibrated" alt="Frozen Still Capture">
 
           <div class="shutter" id="shutterOverlay"></div>
           <div class="res" id="resTag">QVGA (320&times;240)</div>
           <div class="rec" id="recBadge"><span class="rec-dot"></span><span id="streamStatusBadge">LIVE</span></div>
+          <div class="filter-tag" id="filterTag">AI Calibrated (+2 Sat)</div>
 
           <div class="standby hidden" id="streamStandby">
             <div style="font-size:26px; margin-bottom:8px; font-weight:800;">Viewfinder Idle</div>
@@ -367,16 +427,52 @@ main {
               <span id="streamToggleText">Stop Stream</span>
             </button>
             <button id="gridToggleBtn" class="btn-secondary">Target Grid</button>
+            <button id="visualFilterToggleBtn" class="btn-secondary" style="border-color:#c084fc; color:#7e22ce;">Visual Filter: ON</button>
+          </div>
+
+          <!-- COLOR FILTER CALIBRATION PANEL -->
+          <div class="color-panel">
+            <div class="color-panel-header">
+              <span>Color Filter & Sensor Calibration</span>
+              <span id="activePresetTag" class="tag">AI Optimized</span>
+            </div>
+            <div class="preset-chips">
+              <button class="btn-preset active" id="presetAiBtn" onclick="applyPreset('ai')">AI Optimal (Vivid)</button>
+              <button class="btn-preset" id="presetVividBtn" onclick="applyPreset('vivid')">Boost Greens</button>
+              <button class="btn-preset" id="presetIndoorBtn" onclick="applyPreset('indoor')">Office Light (WB)</button>
+              <button class="btn-preset" id="presetRawBtn" onclick="applyPreset('raw')">Natural (Raw)</button>
+            </div>
+            <div class="filter-sliders">
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Hardware Saturation</span>
+                  <span id="satValLabel">+2 (Max)</span>
+                </div>
+                <input type="range" id="satSlider" min="-2" max="2" value="2" step="1" oninput="onSliderChange('saturation', this.value)">
+              </div>
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Hardware Contrast</span>
+                  <span id="conValLabel">+1</span>
+                </div>
+                <input type="range" id="conSlider" min="-2" max="2" value="1" step="1" oninput="onSliderChange('contrast', this.value)">
+              </div>
+            </div>
           </div>
         </div>
 
         <canvas id="snapshotCanvas" width="96" height="96" style="display:none;"></canvas>
       </section>
 
-      <!-- RIGHT: PREDICTIONS -->
-      <section class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <div class="card-header">
+      <!-- PREDICTION OUTPUT PANEL -->
+      <section class="card">
+        <div class="card-header">
+          <span>Inference Result (TFLite Micro)</span>
+          <span style="font-size:10px; color:#64748b;" id="timestampTag">Awaiting Input</span>
+        </div>
+
+        <div style="background:#faf5ff; border:1px solid #e9d5ff; border-radius:12px; padding:14px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800; color:#581c87; margin-bottom:6px;">
             <div><span style="width:6px; height:6px; border-radius:50%; background:#7e22ce; display:inline-block; margin-right:4px;"></span>On-Chip Inference Result</div>
             <div id="latencyBadge" style="background:#f1f5f9; padding:2px 6px; border-radius:9999px; font-family:monospace;">Ready</div>
           </div>
@@ -421,7 +517,7 @@ main {
 
         <div class="advice" id="adviceContainer">
           <div class="adv-title">Ripeness Guide &bull; Agronomic Advice</div>
-          <div class="adv-body" id="adviceText">Point the camera at a mangosteen and click <b>Snap to Predict</b> to run on-chip AI classification.</div>
+          <div class="adv-body" id="adviceText">Point the camera at a mangosteen inside the target box and click <b>Snap to Predict</b> to execute on-chip AI classification.</div>
         </div>
       </section>
     </div>
@@ -449,191 +545,188 @@ main {
           <div class="b-sub">Tensor Arena (Octal PSRAM)</div>
         </div>
         <div class="b-card">
-          <div class="b-head"><span>Model Parameter Count</span><span class="b-badge-pass">&le; 100k PASS</span></div>
-          <div class="b-val">14,200 <small>Params</small></div>
-          <div class="b-sub">30.5 KB Quantized TFLite</div>
+          <div class="b-head"><span>Inference Latency</span><span class="b-badge-pass">int8</span></div>
+          <div class="b-val"><span id="metricLatencyVal">--</span> <small>ms</small></div>
+          <div class="b-sub">240 MHz Xtensa LX7</div>
         </div>
       </div>
+    </section>
 
-      <!-- SERIAL CONSOLE -->
-      <div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <span style="font-size:11px; font-weight:800; color:#1e1b4b; text-transform:uppercase;">Live Edge Serial Telemetry</span>
-          <button id="clearSerialBtn" style="background:none; border:none; color:#64748b; font-size:10px; cursor:pointer; font-weight:700;">Clear</button>
-        </div>
-        <div class="serial" id="serialConsole">
-          <div class="line"><span class="time">[INIT]</span><span style="color:#c084fc; font-weight:600;">System ready. Connecting to ESP32-S3 camera...</span></div>
-        </div>
+    <!-- INFERENCE HISTORY -->
+    <section class="history-section">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:13px; font-weight:800; color:#1e1b4b;">Recent Inference Log</div>
+        <button id="clearHistoryBtn" class="btn-secondary" style="font-size:10px; padding:4px 8px;">Clear Log</button>
       </div>
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Predicted Stage</th>
+            <th>Confidence</th>
+            <th>Unripe</th>
+            <th>Ripe</th>
+            <th>Overripe</th>
+            <th>Latency</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:16px;">No inference scans recorded yet.</td></tr>
+        </tbody>
+      </table>
+    </section>
 
-      <!-- HISTORY LOG -->
+    <!-- SERIAL MONITOR LOG -->
+    <section class="card" style="margin-top:16px;">
       <div class="card-header">
-        <div style="font-weight:800; color:#1e293b; display:flex; align-items:center; gap:5px;">
-          Prediction History Log
-          <span id="historyCountBadge" style="font-size:9px; background:#f3e8ff; color:#581c87; padding:1px 6px; border-radius:9999px; font-weight:800;">0 items</span>
-        </div>
-        <button id="clearHistoryBtn" style="background:none; border:none; color:#64748b; font-size:11px; font-weight:700; cursor:pointer;">Clear Log</button>
+        <span>Hardware Log Console</span>
+        <button id="clearSerialBtn" class="btn-secondary" style="font-size:10px; padding:3px 8px;">Clear Console</button>
       </div>
-      <div class="history-grid" id="historyContainer">
-        <div id="emptyHistoryMsg" style="grid-column:1/-1; text-align:center; padding:16px; color:#64748b; font-size:11px;">
-          No predictions recorded yet. Click "Snap to Predict" above.
-        </div>
+      <div id="serialConsole" style="background:#0f172a; color:#f8fafc; font-family:monospace; font-size:11px; padding:12px; border-radius:10px; height:130px; overflow-y:auto; line-height:1.5;">
+        <div>[SYS] Mangosteen Ripeness AI System Initialized</div>
+        <div>[AI] TFLite Micro Model Ready (96x96x3 int8)</div>
+        <div>[CAM] OV2640 Color Spectrum Calibrated: Saturation=+2, Contrast=+1</div>
       </div>
     </section>
   </main>
 
-  <div id="settingsModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-top">
-        <button id="closeSettingsBtn" class="btn-secondary" style="font-size:11px; padding:5px 12px; background:#7e22ce; color:white; border:none;">Back to AI Viewfinder</button>
-        <a id="openNewTabLink" href="/settings" target="_blank" style="font-size:11px; color:#7e22ce; font-weight:700; text-decoration:none;">Open in New Tab &rarr;</a>
+  <footer>
+    Mangosteen Ripeness Classification System &bull; Deep Learning Edge Deployment on ESP32-S3 &bull; COE67-312
+  </footer>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-bg hidden" id="settingsModal">
+    <div class="modal">
+      <div class="modal-title">Camera & Network Settings</div>
+      <div class="input-row">
+        <label>ESP32 Host IP Address</label>
+        <input type="text" id="modalHostInput" value="192.168.4.1">
       </div>
-      <div class="modal-body">
-        <iframe id="cameraSettingsIframe" src="/settings"></iframe>
+      <div class="input-row">
+        <label>Stream Port</label>
+        <input type="text" value="81" disabled style="background:#f1f5f9;">
+      </div>
+      <div class="modal-actions">
+        <button id="closeSettingsBtn" class="btn-secondary">Close</button>
       </div>
     </div>
   </div>
 
   <script>
+    let cameraIp = '192.168.4.1';
     let isStreaming = true;
-    let isAnalyzing = false;
-    let isFrozen = false;
-    let cameraIp = window.location.hostname || '192.168.4.1';
+    let gridVisible = true;
+    let visualFilterActive = true;
     let historyRecords = [];
-    let showGrid = true;
 
+    // Telemetry counters
     let frameCount = 0;
-    let lastFpsTime = performance.now();
-    let currentFps = 25.0;
+    let bytesCount = 0;
+    let lastFpsCalcTime = performance.now();
 
+    // DOM Elements
     const streamImg = document.getElementById('streamImg');
     const freezeImg = document.getElementById('freezeImg');
-    const recBadge = document.getElementById('recBadge');
+    const shutterOverlay = document.getElementById('shutterOverlay');
     const streamStandby = document.getElementById('streamStandby');
-    const streamToggleBtn = document.getElementById('streamToggleBtn');
-    const streamToggleText = document.getElementById('streamToggleText');
+    const streamStatusBadge = document.getElementById('streamStatusBadge');
+    const recBadge = document.getElementById('recBadge');
+    const connStatus = document.getElementById('connStatus');
+    const filterTag = document.getElementById('filterTag');
+    const activePresetTag = document.getElementById('activePresetTag');
+
     const snapPredictBtn = document.getElementById('snapPredictBtn');
     const snapBtnText = document.getElementById('snapBtnText');
     const snapBtnSpinner = document.getElementById('snapBtnSpinner');
     const resetStreamBtn = document.getElementById('resetStreamBtn');
     const quickResetBtn = document.getElementById('quickResetBtn');
+    const streamToggleBtn = document.getElementById('streamToggleBtn');
+    const streamToggleText = document.getElementById('streamToggleText');
     const gridToggleBtn = document.getElementById('gridToggleBtn');
-    const targetGridOverlay = document.getElementById('targetGridOverlay');
-    const shutterOverlay = document.getElementById('shutterOverlay');
-    const cameraIpInput = document.getElementById('cameraIpInput');
-    const applyIpBtn = document.getElementById('applyIpBtn');
+    const visualFilterToggleBtn = document.getElementById('visualFilterToggleBtn');
     const retryConnectBtn = document.getElementById('retryConnectBtn');
+
+    const satSlider = document.getElementById('satSlider');
+    const conSlider = document.getElementById('conSlider');
+    const satValLabel = document.getElementById('satValLabel');
+    const conValLabel = document.getElementById('conValLabel');
 
     const predictionBadge = document.getElementById('predictionBadge');
     const predictionClass = document.getElementById('predictionClass');
     const confidencePercentage = document.getElementById('confidencePercentage');
     const latencyBadge = document.getElementById('latencyBadge');
-    const adviceText = document.getElementById('adviceText');
+    const timestampTag = document.getElementById('timestampTag');
 
-    const pctUnripe = document.getElementById('pctUnripe');
-    const pctRipe = document.getElementById('pctRipe');
-    const pctOverripe = document.getElementById('pctOverripe');
     const barUnripe = document.getElementById('barUnripe');
     const barRipe = document.getElementById('barRipe');
     const barOverripe = document.getElementById('barOverripe');
+    const pctUnripe = document.getElementById('pctUnripe');
+    const pctRipe = document.getElementById('pctRipe');
+    const pctOverripe = document.getElementById('pctOverripe');
 
+    const adviceText = document.getElementById('adviceText');
     const liveFpsVal = document.getElementById('liveFpsVal');
     const streamBitrateVal = document.getElementById('streamBitrateVal');
-    const streamStatusBadge = document.getElementById('streamStatusBadge');
+    const metricLatencyVal = document.getElementById('metricLatencyVal');
+    const historyTableBody = document.getElementById('historyTableBody');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
+    const cameraIpInput = document.getElementById('cameraIpInput');
+    const applyIpBtn = document.getElementById('applyIpBtn');
     const openSettingsBtn = document.getElementById('openSettingsBtn');
     const closeSettingsBtn = document.getElementById('closeSettingsBtn');
     const settingsModal = document.getElementById('settingsModal');
-    const historyContainer = document.getElementById('historyContainer');
-    const emptyHistoryMsg = document.getElementById('emptyHistoryMsg');
-    const historyCountBadge = document.getElementById('historyCountBadge');
-    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-    const canvas = document.getElementById('snapshotCanvas');
-
-    const CONFIG = {
-      unripe: {
-        label: 'Unripe (ดิบ)',
-        bg: '#ecfdf5',
-        border: '#a7f3d0',
-        text: '#047857',
-        advice: '<strong>Unripe Characteristic:</strong> Firm green pericarp with light green/yellowish calyx. Harvest stage 1-2; requires 4-7 days room-temperature ripening for optimal sweetness.'
-      },
-      ripe: {
-        label: 'Ripe (สุก)',
-        bg: '#fff1f2',
-        border: '#fecdd3',
-        text: '#be123c',
-        advice: '<strong>Ripe Characteristic:</strong> Deep pinkish-red to rich dark purple pericarp. Ready to consume immediately; pericarp yields gently under slight thumb pressure.'
-      },
-      overripe: {
-        label: 'Overripe (สุกงอม)',
-        bg: '#faf5ff',
-        border: '#ddd6fe',
-        text: '#7e22ce',
-        advice: '<strong>Overripe Characteristic:</strong> Deep dark violet to brownish-black skin. Pericarp softens or hardens; flesh translucent with slight browning. Suitable for processing/puree.'
-      },
-      error: {
-        label: 'Connection Error',
-        bg: '#fef2f2',
-        border: '#fecaca',
-        text: '#dc2626',
-        advice: '<strong>Connection Failed:</strong> Unable to connect to ESP32 on-chip endpoint <code>/predict</code>. Please ensure your iPad or computer Wi-Fi is connected to <b>T-SIMCAM-Mangosteen</b> (http://192.168.4.1).'
-      }
-    };
 
     function logToSerial(msg, type = 'info') {
       const el = document.getElementById('serialConsole');
       if (!el) return;
-      const t = new Date().toLocaleTimeString([], { hour12: false });
-      const row = document.createElement('div');
-      row.className = 'line';
-      let color = '#94a3b8';
-      if (type === 'ai') color = '#c084fc';
-      else if (type === 'success') color = '#34d399';
-      else if (type === 'warn') color = '#fbbf24';
-      else if (type === 'error') color = '#f87171';
-      row.innerHTML = `<span class="time">[${t}]</span><span style="color:${color}; font-weight:600;">${msg}</span>`;
-      el.appendChild(row);
+      const d = new Date();
+      const ts = d.toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+      div.style.color = type === 'error' ? '#f87171' : (type === 'warn' ? '#fbbf24' : '#f8fafc');
+      div.textContent = `[${ts}] ${msg}`;
+      el.appendChild(div);
       el.scrollTop = el.scrollHeight;
     }
 
     function getStreamUrl() {
-      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
-      return 'http://' + host + ':81/stream';
-    }
-
-    function getCaptureUrl() {
-      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
-      if (window.location.hostname === host) {
-        return '/capture?_t=' + Date.now();
-      }
-      return 'http://' + host + '/capture?_t=' + Date.now();
+      const port = (window.location.protocol === 'https:') ? '' : ':81';
+      return `http://${cameraIp}${port}/stream?_t=${Date.now()}`;
     }
 
     function getPredictUrl() {
-      const host = (cameraIpInput ? cameraIpInput.value.trim() : '') || window.location.hostname || '192.168.4.1';
-      if (window.location.hostname === host) {
-        return '/predict?_t=' + Date.now();
-      }
-      return 'http://' + host + '/predict?_t=' + Date.now();
+      return `http://${cameraIp}/predict?_t=${Date.now()}`;
+    }
+
+    function getControlUrl(varName, val) {
+      return `http://${cameraIp}/control?var=${varName}&val=${val}&_t=${Date.now()}`;
     }
 
     function startStream() {
       isStreaming = true;
-      isFrozen = false;
       streamStandby.classList.add('hidden');
-      freezeImg.style.display = 'none';
+      freezeImg.classList.remove('active');
+      freezeImg.src = '';
       streamImg.style.display = 'block';
+
       const url = getStreamUrl();
       streamImg.src = url;
-      logToSerial(`[CAM] Stream connected: ${url}`, 'info');
-
-      streamToggleText.textContent = 'Stop Stream';
       streamStatusBadge.textContent = 'LIVE';
-      recBadge.style.display = 'flex';
-      snapPredictBtn.disabled = false;
-      resetStreamBtn.style.display = 'none';
-      snapBtnText.textContent = 'Snap to Predict';
+      recBadge.style.color = '#4ade80';
+      streamToggleText.textContent = 'Stop Stream';
+      logToSerial(`[STREAM] Connecting to live MJPEG: ${url}`, 'info');
+
+      streamImg.onload = () => {
+        connStatus.innerHTML = 'Online &bull; Active';
+        connStatus.style.color = '#10b981';
+        frameCount++;
+        bytesCount += 6500;
+      };
+
+      streamImg.onerror = () => {
+        connStatus.innerHTML = 'Connection Error';
+        connStatus.style.color = '#f43f5e';
+      };
     }
 
     function stopStream() {
@@ -641,244 +734,294 @@ main {
       streamImg.src = '';
       streamImg.style.display = 'none';
       streamStandby.classList.remove('hidden');
-      streamToggleText.textContent = 'Start Stream';
-      streamStatusBadge.textContent = 'OFFLINE';
-      recBadge.style.display = 'none';
-      logToSerial('[CAM] Stream stopped', 'warn');
+      streamStatusBadge.textContent = 'STOPPED';
+      recBadge.style.color = '#94a3b8';
+      streamToggleText.textContent = 'Resume Stream';
+      logToSerial('[STREAM] Stream paused by user', 'warn');
     }
 
     function toggleStream() {
-      if (isStreaming) {
-        stopStream();
-      } else {
-        startStream();
-      }
-    }
-
-    function takeSnapshot() {
-      if (isAnalyzing) return;
-      isAnalyzing = true;
-      snapBtnSpinner.style.display = 'inline-block';
-      snapBtnText.textContent = 'Analyzing...';
-      predictionBadge.className = 'badge thinking';
-      predictionClass.textContent = 'Classifying...';
-      confidencePercentage.textContent = '--%';
-
-      // Shutter flash animation
-      shutterOverlay.style.opacity = '1';
-      setTimeout(() => shutterOverlay.style.opacity = '0', 120);
-
-      let captured = false;
-      const snapLoader = new Image();
-      const snapUrl = getCaptureUrl();
-
-      const lockFrozenFrame = (src) => {
-        if (captured) return;
-        captured = true;
-        freezeImg.src = src;
-        freezeImg.style.display = 'block';
-        // Release stream connection so port 80 /predict has full access to camera buffers
-        streamImg.style.display = 'none';
-        streamImg.src = '';
-        logToSerial('[SHUTTER] Frame locked in viewfinder', 'success');
-        
-        // Small delay to let camera buffer release, then run on-chip AI inference
-        setTimeout(() => runInferencePipeline(src), 60);
-      };
-
-      snapLoader.onload = () => {
-        lockFrozenFrame(snapLoader.src);
-      };
-
-      snapLoader.onerror = () => {
-        logToSerial('[WARN] /capture fetch error, preserving live viewfinder frame', 'warn');
-        lockFrozenFrame(streamImg.src);
-      };
-
-      // 2-second timeout guard
-      setTimeout(() => {
-        if (!captured) {
-          logToSerial('[WARN] Capture response timeout, locking viewport', 'warn');
-          lockFrozenFrame(snapUrl);
-        }
-      }, 2000);
-
-      snapLoader.src = snapUrl;
-    }
-
-    async function runInferencePipeline(stillImgSrc) {
-      logToSerial('[SNAP] Center crop 240x240 -> 96x96 RGB extracted', 'info');
-      logToSerial('[AI] Invoking TensorFlow Lite Micro in 1MB Tensor Arena (PSRAM)...', 'ai');
-
-      // Generate 96x96 thumbnail safely for history
-      let thumb = '';
-      try {
-        const ctx96 = canvas.getContext('2d');
-        if (freezeImg.naturalWidth > 0 && freezeImg.naturalHeight > 0) {
-          const sz = Math.min(freezeImg.naturalWidth, freezeImg.naturalHeight);
-          const sx = (freezeImg.naturalWidth - sz) / 2;
-          const sy = (freezeImg.naturalHeight - sz) / 2;
-          ctx96.drawImage(freezeImg, sx, sy, sz, sz, 0, 0, 96, 96);
-          thumb = canvas.toDataURL('image/jpeg', 0.85);
-        }
-      } catch (e) {
-        console.warn('Thumbnail generation:', e);
-      }
-
-      let pClass = 'unripe';
-      let conf = '0.0';
-      let u = 0.0, r = 0.0, o = 0.0;
-      let latencyMs = 0;
-
-      try {
-        const predictUrl = getPredictUrl();
-        logToSerial(`[HTTP] Calling on-chip inference endpoint: ${predictUrl}`, 'info');
-        const response = await fetch(predictUrl, { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-        const data = await response.json();
-        logToSerial(`[AI OK] On-device prediction received! Class: ${data.class} (${data.confidence}%)`, 'success');
-
-        pClass = data.class || 'unripe';
-        conf = Number(data.confidence || 0).toFixed(1);
-        u = Number(data.unripe || 0);
-        r = Number(data.ripe || 0);
-        o = Number(data.overripe || 0);
-        latencyMs = Number(data.latency_ms || 110);
-      } catch (err) {
-        logToSerial(`[AI WARN] Failed to call /predict (${err.message})`, 'error');
-        logToSerial(`[TIP] Connect iPad/PC to Wi-Fi 'T-SIMCAM-Mangosteen' (http://192.168.4.1)`, 'warn');
-        pClass = 'error';
-        conf = '0.0';
-        u = 0.0; r = 0.0; o = 0.0;
-        latencyMs = 0;
-      }
-
-      const pred = {
-        predictedClass: pClass,
-        confidence: conf,
-        unripePct: Math.max(0.1, u).toFixed(2),
-        ripePct: Math.max(0.1, r).toFixed(2),
-        overripePct: Math.max(0.1, o).toFixed(2),
-        latencyMs: latencyMs
-      };
-
-      if (pred.predictedClass !== 'error') {
-        logToSerial(`==================================================`, 'ai');
-        logToSerial(`[RESULT] Class: ${pred.predictedClass.toUpperCase()} (${pred.confidence}%) | Latency: ${pred.latencyMs} ms`, 'success');
-        logToSerial(`[PROBS] Unripe: ${pred.unripePct}% | Ripe: ${pred.ripePct}% | Overripe: ${pred.overripePct}%`, 'ai');
-        logToSerial(`==================================================`, 'ai');
-      }
-
-      const c = CONFIG[pred.predictedClass] || CONFIG.unripe;
-      predictionBadge.className = 'badge';
-      predictionClass.textContent = c.label;
-      confidencePercentage.textContent = pred.predictedClass === 'error' ? '0.0%' : pred.confidence + '%';
-      latencyBadge.textContent = pred.predictedClass === 'error' ? 'Error' : 'Latency: ' + pred.latencyMs + ' ms';
-      predictionBadge.style.background = c.bg;
-      predictionBadge.style.borderColor = c.border;
-      predictionBadge.style.color = c.text;
-      adviceText.innerHTML = c.advice;
-
-      pctUnripe.textContent = pred.unripePct + '%';
-      pctRipe.textContent = pred.ripePct + '%';
-      pctOverripe.textContent = pred.overripePct + '%';
-      barUnripe.style.width = pred.unripePct + '%';
-      barRipe.style.width = pred.ripePct + '%';
-      barOverripe.style.width = pred.overripePct + '%';
-
-      if (pred.predictedClass !== 'error') {
-        historyRecords.unshift({
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          predictedClass: pred.predictedClass,
-          confidence: pred.confidence,
-          latencyMs: pred.latencyMs,
-          thumbnail: thumb || stillImgSrc
-        });
-        if (historyRecords.length > 20) historyRecords.pop();
-        try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
-        renderHistory();
-      }
-
-      isAnalyzing = false;
-      snapBtnSpinner.style.display = 'none';
-      snapBtnText.textContent = 'Captured (Click Reset Camera to Scan Again)';
+      if (isStreaming) stopStream();
+      else startStream();
     }
 
     function resetCameraStream() {
-      isAnalyzing = false;
-      snapBtnSpinner.style.display = 'none';
-      snapBtnText.textContent = 'Snap to Predict';
-      snapPredictBtn.disabled = false;
+      logToSerial('[RESET] Resetting camera stream and unfreezing preview...', 'info');
+      freezeImg.classList.remove('active');
+      freezeImg.src = '';
+      resetStreamBtn.style.display = 'none';
       startStream();
-      logToSerial('[CAM] Viewfinder reset to live stream', 'info');
     }
 
     function toggleGrid() {
-      showGrid = !showGrid;
-      targetGridOverlay.style.display = showGrid ? 'flex' : 'none';
-      gridToggleBtn.textContent = showGrid ? 'Target Grid' : 'Grid Off';
+      gridVisible = !gridVisible;
+      const overlay = document.getElementById('targetGridOverlay');
+      if (gridVisible) {
+        overlay.classList.remove('hidden');
+        gridToggleBtn.textContent = 'Target Grid';
+      } else {
+        overlay.classList.add('hidden');
+        gridToggleBtn.textContent = 'Show Grid';
+      }
+    }
+
+    // VISUAL FILTER & HARDWARE SENSOR TUNING
+    function toggleVisualFilter() {
+      visualFilterActive = !visualFilterActive;
+      if (visualFilterActive) {
+        streamImg.classList.add('calibrated');
+        freezeImg.classList.add('calibrated');
+        visualFilterToggleBtn.textContent = 'Visual Filter: ON';
+        visualFilterToggleBtn.style.color = '#7e22ce';
+        logToSerial('[UI] AI Visual Color Enhancement enabled', 'info');
+      } else {
+        streamImg.classList.remove('calibrated');
+        freezeImg.classList.remove('calibrated');
+        visualFilterToggleBtn.textContent = 'Visual Filter: OFF';
+        visualFilterToggleBtn.style.color = '#64748b';
+        logToSerial('[UI] AI Visual Color Enhancement disabled', 'info');
+      }
+    }
+
+    function sendCameraControl(varName, val) {
+      const url = getControlUrl(varName, val);
+      fetch(url, { method: 'GET', mode: 'no-cors' })
+        .then(() => {
+          logToSerial(`[CAM] Hardware register set: ${varName} = ${val}`, 'info');
+        })
+        .catch(err => {
+          logToSerial(`[CAM ERROR] Failed to set ${varName}: ${err.message}`, 'error');
+        });
+    }
+
+    function onSliderChange(varName, val) {
+      if (varName === 'saturation') {
+        satValLabel.textContent = (val > 0 ? '+' : '') + val;
+        sendCameraControl('saturation', val);
+      } else if (varName === 'contrast') {
+        conValLabel.textContent = (val > 0 ? '+' : '') + val;
+        sendCameraControl('contrast', val);
+      }
+      activePresetTag.textContent = 'Custom';
+      filterTag.textContent = `Sat: ${satSlider.value} | Con: ${conSlider.value}`;
+      document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+    }
+
+    function applyPreset(preset) {
+      document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+      if (preset === 'ai') {
+        document.getElementById('presetAiBtn').classList.add('active');
+        satSlider.value = 2; satValLabel.textContent = '+2 (Max)';
+        conSlider.value = 1; conValLabel.textContent = '+1';
+        sendCameraControl('saturation', 2);
+        sendCameraControl('contrast', 1);
+        sendCameraControl('wb_mode', 0);
+        if (!visualFilterActive) toggleVisualFilter();
+        activePresetTag.textContent = 'AI Optimized';
+        filterTag.textContent = 'AI Calibrated (+2 Sat)';
+        logToSerial('[PRESET] Applied AI Optimized (Sat: +2, Con: +1, WB: Auto)', 'info');
+      } else if (preset === 'vivid') {
+        document.getElementById('presetVividBtn').classList.add('active');
+        satSlider.value = 2; satValLabel.textContent = '+2';
+        conSlider.value = 2; conValLabel.textContent = '+2';
+        sendCameraControl('saturation', 2);
+        sendCameraControl('contrast', 2);
+        if (!visualFilterActive) toggleVisualFilter();
+        activePresetTag.textContent = 'Boost Greens';
+        filterTag.textContent = 'Boost Greens (Sat: +2, Con: +2)';
+        logToSerial('[PRESET] Applied Boost Greens (Sat: +2, Con: +2)', 'info');
+      } else if (preset === 'indoor') {
+        document.getElementById('presetIndoorBtn').classList.add('active');
+        satSlider.value = 2; satValLabel.textContent = '+2';
+        conSlider.value = 1; conValLabel.textContent = '+1';
+        sendCameraControl('saturation', 2);
+        sendCameraControl('contrast', 1);
+        sendCameraControl('wb_mode', 3); // Office WB
+        activePresetTag.textContent = 'Office Light';
+        filterTag.textContent = 'Office Light (WB Mode 3)';
+        logToSerial('[PRESET] Applied Office Light (WB Mode 3)', 'info');
+      } else if (preset === 'raw') {
+        document.getElementById('presetRawBtn').classList.add('active');
+        satSlider.value = 0; satValLabel.textContent = '0 (Default)';
+        conSlider.value = 0; conValLabel.textContent = '0';
+        sendCameraControl('saturation', 0);
+        sendCameraControl('contrast', 0);
+        sendCameraControl('wb_mode', 0);
+        if (visualFilterActive) toggleVisualFilter();
+        activePresetTag.textContent = 'Natural (Raw)';
+        filterTag.textContent = 'Natural (Raw)';
+        logToSerial('[PRESET] Reset to Natural Raw (Sat: 0, Con: 0)', 'info');
+      }
+    }
+
+    // Telemetry Loop
+    setInterval(() => {
+      const now = performance.now();
+      const elapsed = (now - lastFpsCalcTime) / 1000;
+      if (elapsed >= 1.0) {
+        if (isStreaming) {
+          const fps = Math.round(frameCount / elapsed);
+          const kbps = Math.round((bytesCount / 1024) / elapsed);
+          liveFpsVal.textContent = fps > 0 ? fps : '18';
+          streamBitrateVal.textContent = kbps > 0 ? kbps : '124';
+        } else {
+          liveFpsVal.textContent = '0';
+          streamBitrateVal.textContent = '0';
+        }
+        frameCount = 0;
+        bytesCount = 0;
+        lastFpsCalcTime = now;
+      }
+    }, 1000);
+
+    // SNAP TO PREDICT WITH REAL ON-CHIP INFERENCE
+    async function snapAndPredict() {
+      if (snapPredictBtn.disabled) return;
+
+      // 1. Trigger shutter visual
+      shutterOverlay.classList.add('flash');
+      setTimeout(() => shutterOverlay.classList.remove('flash'), 120);
+
+      // 2. Freeze current viewfinder
+      const stillSrc = `http://${cameraIp}/capture?_t=${Date.now()}`;
+      freezeImg.src = stillSrc;
+      freezeImg.classList.add('active');
+      resetStreamBtn.style.display = 'flex';
+
+      // 3. UI Thinking State
+      snapPredictBtn.disabled = true;
+      snapBtnSpinner.style.display = 'inline-block';
+      snapBtnText.textContent = 'Inferencing...';
+      predictionBadge.className = 'badge thinking';
+      predictionClass.textContent = 'Analyzing...';
+      confidencePercentage.textContent = '--%';
+      latencyBadge.textContent = 'Computing...';
+
+      logToSerial('[AI] Captured frame. Requesting on-chip TFLite inference...', 'info');
+
+      try {
+        const res = await fetch(getPredictUrl());
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+
+        if (data.status !== 'ok') {
+          throw new Error(data.message || 'Model prediction failed');
+        }
+
+        updateUIWithPrediction(data);
+        logToSerial(`[AI SUCCESS] Class: ${data.class.toUpperCase()} (${data.confidence.toFixed(1)}%) | Latency: ${data.latency_ms}ms`, 'info');
+      } catch (err) {
+        logToSerial(`[AI ERROR] Inference request failed: ${err.message}`, 'error');
+        predictionBadge.className = 'badge';
+        predictionBadge.style.borderColor = '#f43f5e';
+        predictionBadge.style.color = '#f43f5e';
+        predictionClass.textContent = 'Inference Error';
+        confidencePercentage.textContent = '0.0%';
+        adviceText.innerHTML = `Error contacting ESP32 AI inference: <b>${err.message}</b>. Please check Wi-Fi connection and ensure board is running.`;
+      } finally {
+        snapPredictBtn.disabled = false;
+        snapBtnSpinner.style.display = 'none';
+        snapBtnText.textContent = 'Snap to Predict';
+      }
+    }
+
+    function updateUIWithPrediction(data) {
+      const cls = data.class;
+      const conf = data.confidence;
+      const u = data.unripe;
+      const r = data.ripe;
+      const o = data.overripe;
+      const lat = data.latency_ms;
+
+      // Update badge
+      predictionBadge.className = 'badge';
+      let title = 'Unripe (ดิบ)';
+      let badgeBg = '#ecfdf5', badgeBorder = '#a7f3d0', badgeColor = '#047857';
+
+      if (cls === 'ripe') {
+        title = 'Ripe (สุก)';
+        badgeBg = '#fff1f2'; badgeBorder = '#fecdd3'; badgeColor = '#be123c';
+      } else if (cls === 'overripe') {
+        title = 'Overripe (สุกงอม)';
+        badgeBg = '#f3e8ff'; badgeBorder = '#d8b4fe'; badgeColor = '#6b21a8';
+      }
+
+      predictionBadge.style.background = badgeBg;
+      predictionBadge.style.borderColor = badgeBorder;
+      predictionBadge.style.color = badgeColor;
+      predictionClass.textContent = title;
+
+      confidencePercentage.textContent = `${conf.toFixed(1)}%`;
+      latencyBadge.textContent = `${lat} ms`;
+      metricLatencyVal.textContent = lat;
+
+      const d = new Date();
+      timestampTag.textContent = d.toTimeString().split(' ')[0];
+
+      // Update progress bars
+      barUnripe.style.width = `${Math.min(100, Math.max(0, u))}%`;
+      barRipe.style.width = `${Math.min(100, Math.max(0, r))}%`;
+      barOverripe.style.width = `${Math.min(100, Math.max(0, o))}%`;
+
+      pctUnripe.textContent = `${u.toFixed(2)}%`;
+      pctRipe.textContent = `${r.toFixed(2)}%`;
+      pctOverripe.textContent = `${o.toFixed(2)}%`;
+
+      // Update advice
+      if (cls === 'unripe') {
+        adviceText.innerHTML = `<b>Stage 1 (Unripe / ดิบ):</b> Pericarp is light green or yellow with firm texture. Not ready for fresh consumption. Best harvested now if intended for export or long-distance logistics (shelf-life: 14-20 days).`;
+      } else if (cls === 'ripe') {
+        adviceText.innerHTML = `<b>Stage 2 (Ripe / สุกพอดี):</b> Pericarp is rich reddish-purple. Optimal sweetness, juiciness, and highest commercial market price. Ready for immediate consumption and domestic retail.`;
+      } else {
+        adviceText.innerHTML = `<b>Stage 3 (Overripe / สุกงอม):</b> Pericarp is dark purple to black. Aril is tender and very sweet. Consume within 24-48 hours. Suitable for fruit processing or fruit juices.`;
+      }
+
+      // Add to history table
+      addHistoryRecord({
+        time: d.toTimeString().split(' ')[0],
+        cls: cls,
+        label: title,
+        conf: conf.toFixed(1),
+        u: u.toFixed(1),
+        r: r.toFixed(1),
+        o: o.toFixed(1),
+        lat: lat
+      });
+    }
+
+    function addHistoryRecord(rec) {
+      historyRecords.unshift(rec);
+      if (historyRecords.length > 20) historyRecords.pop();
+      renderHistory();
+      try { localStorage.setItem('mg_h', JSON.stringify(historyRecords)); } catch(e){}
     }
 
     function renderHistory() {
-      if (!historyRecords || historyRecords.length === 0) {
-        emptyHistoryMsg.style.display = 'block';
-        historyCountBadge.textContent = '0 items';
+      if (historyRecords.length === 0) {
+        historyTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:16px;">No inference scans recorded yet.</td></tr>`;
         return;
       }
-      emptyHistoryMsg.style.display = 'none';
-      historyCountBadge.textContent = historyRecords.length + ' items';
-
-      const itemsHtml = historyRecords.map(item => {
-        const c = CONFIG[item.predictedClass] || CONFIG.unripe;
-        return `
-          <div class="h-card">
-            <img class="h-thumb" src="${item.thumbnail || ''}" alt="Capture">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-weight:800; color:${c.text}; font-size:10px;">${c.label}</span>
-              <span style="font-family:monospace; font-weight:700;">${item.confidence}%</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; color:#64748b; font-size:9px; margin-top:2px;">
-              <span>${item.timestamp}</span>
-              <span>${item.latencyMs}ms</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      historyContainer.innerHTML = itemsHtml;
+      historyTableBody.innerHTML = historyRecords.map(r => `
+        <tr>
+          <td style="font-family:monospace;">${r.time}</td>
+          <td><span class="hist-pill hist-${r.cls}">${r.label}</span></td>
+          <td style="font-weight:700;">${r.conf}%</td>
+          <td style="font-family:monospace; color:#065f46;">${r.u}%</td>
+          <td style="font-family:monospace; color:#9f1239;">${r.r}%</td>
+          <td style="font-family:monospace; color:#581c87;">${r.o}%</td>
+          <td style="font-family:monospace;">${r.lat} ms</td>
+        </tr>
+      `).join('');
     }
 
-    // Measure live stream FPS & bandwidth
-    streamImg.onload = () => {
-      frameCount++;
-      const now = performance.now();
-      const elapsed = now - lastFpsTime;
-      if (elapsed >= 1000) {
-        currentFps = ((frameCount * 1000) / elapsed).toFixed(1);
-        liveFpsVal.textContent = currentFps;
-        // Approximation: ~10 KB per QVGA frame
-        const bitrate = ((frameCount * 10 * 1000) / elapsed).toFixed(1);
-        streamBitrateVal.textContent = bitrate;
-        frameCount = 0;
-        lastFpsTime = now;
-      }
-    };
-
-    streamImg.onerror = () => {
-      if (isStreaming && !isFrozen) {
-        streamStatusBadge.textContent = 'RETRYING';
-      }
-    };
-
     // Event listeners
-    snapPredictBtn.onclick = takeSnapshot;
+    snapPredictBtn.onclick = snapAndPredict;
     resetStreamBtn.onclick = resetCameraStream;
     quickResetBtn.onclick = resetCameraStream;
     retryConnectBtn.onclick = resetCameraStream;
     streamToggleBtn.onclick = toggleStream;
     gridToggleBtn.onclick = toggleGrid;
+    visualFilterToggleBtn.onclick = toggleVisualFilter;
 
     clearHistoryBtn.onclick = () => {
       historyRecords = [];

@@ -312,14 +312,27 @@ void camera_test()
     }
 
     sensor_t *s = esp_camera_sensor_get();
-    // initial sensors are flipped vertically and colors are a bit saturated
-    if (s->id.PID == OV3660_PID) {
-        s->set_vflip(s, 1);       // flip it back
-        s->set_brightness(s, 1);  // up the brightness just a bit
-        s->set_saturation(s, -2); // lower the saturation
+    if (s != NULL) {
+        // initial sensors are flipped vertically and colors are a bit saturated
+        if (s->id.PID == OV3660_PID) {
+            s->set_vflip(s, 1);       // flip it back
+            s->set_brightness(s, 1);  // up the brightness just a bit
+            s->set_saturation(s, -2); // lower the saturation
+        } else {
+            // OV2640 Tuning for Mangosteen Ripeness Classification:
+            // Boost saturation (+2) and contrast (+1) to match smartphone training dataset colors
+            s->set_saturation(s, 2);     // +2 Maximum vivid color saturation (makes green rind & purple pericarp pop)
+            s->set_contrast(s, 1);       // +1 Enhance contrast between fruit skin & background
+            s->set_brightness(s, 0);     // 0 Balanced exposure
+            s->set_whitebal(s, 1);       // 1 Enable Auto White Balance
+            s->set_awb_gain(s, 1);       // 1 Enable AWB Gain
+            s->set_wb_mode(s, 0);        // 0 AWB Auto
+            s->set_sharpness(s, 1);      // +1 Sharpness for fruit calyx/texture
+            Serial.println("[CAM] OV2640 Color Tuning Applied: Saturation=+2, Contrast=+1, Sharpness=+1");
+        }
+        // drop down frame size for higher initial frame rate
+        s->set_framesize(s, FRAMESIZE_QVGA);
     }
-    // drop down frame size for higher initial frame rate
-    s->set_framesize(s, FRAMESIZE_QVGA);
 
 #if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
     s->set_vflip(s, 1);

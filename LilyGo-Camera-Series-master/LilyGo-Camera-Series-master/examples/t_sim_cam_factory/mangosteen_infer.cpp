@@ -76,6 +76,38 @@ bool initMangosteenModel() {
     return true;
 }
 
+// Color Calibration Filter for Mangosteen Ripeness Classification:
+// Adapts camera sensor RGB values to match the rich color distribution of the smartphone training dataset.
+static inline void applyMangosteenColorFilter(uint8_t &r, uint8_t &g, uint8_t &b) {
+    float rf = (float)r;
+    float gf = (float)g;
+    float bf = (float)b;
+
+    // Luminance (perceived brightness)
+    float lum = 0.299f * rf + 0.587f * gf + 0.114f * bf;
+
+    // Chromatic saturation boost (1.25x) - enhances distinction between green pericarp and purple skin
+    rf = lum + (rf - lum) * 1.25f;
+    gf = lum + (gf - lum) * 1.25f;
+    bf = lum + (bf - lum) * 1.25f;
+
+    // Green Chroma Accent:
+    // If pixel exhibits green dominance over blue (indicative of unripe rind / sepals),
+    // cleanly suppress sensor blue noise and boost crisp green features for CNN Conv2D filters
+    if (gf > bf && gf > 40.0f) {
+        float excess_g = gf - bf;
+        if (excess_g > 15.0f) {
+            gf += excess_g * 0.15f; // enhance green definition
+            bf -= excess_g * 0.10f; // suppress sensor blue scatter
+        }
+    }
+
+    // Clamp within valid uint8 boundaries
+    r = (uint8_t)constrain((int)roundf(rf), 0, 255);
+    g = (uint8_t)constrain((int)roundf(gf), 0, 255);
+    b = (uint8_t)constrain((int)roundf(bf), 0, 255);
+}
+
 MangosteenResult classifyMangosteen(camera_fb_t *fb) {
     MangosteenResult res = {0.0f, 0.0f, 0.0f, "Unknown", "unripe", 0.0f, 0, false};
 
@@ -127,6 +159,9 @@ MangosteenResult classifyMangosteen(camera_fb_t *fb) {
             uint8_t r = rgb888_buf[src_idx + 2]; // Red is at byte 2
             uint8_t g = rgb888_buf[src_idx + 1]; // Green is at byte 1
             uint8_t b = rgb888_buf[src_idx];     // Blue is at byte 0
+
+            // Apply AI Color Calibration Filter to adapt camera sensor colors to training dataset
+            applyMangosteenColorFilter(r, g, b);
 
             // Quantize to int8: (pixel / scale) + zero_point with bounds check
             int q_r = (int)roundf((float)r / in_scale) + in_zero;
