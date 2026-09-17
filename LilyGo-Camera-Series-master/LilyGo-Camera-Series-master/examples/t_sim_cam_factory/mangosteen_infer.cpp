@@ -9,8 +9,8 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 #include <freertos/semphr.h>
 
-// 512 KB Tensor Arena (Allocated in PSRAM)
-constexpr int kTensorArenaSize = 512 * 1024;
+// 1024 KB (1 MB) Tensor Arena (Allocated in PSRAM, model requires ~589 KB)
+constexpr int kTensorArenaSize = 1024 * 1024;
 static uint8_t *tensor_arena = nullptr;
 
 static const tflite::Model *model = nullptr;

@@ -1148,11 +1148,20 @@ static esp_err_t mangosteen_index_handler(httpd_req_t *req)
 
 static esp_err_t predict_handler(httpd_req_t *req)
 {
-    camera_fb_t *fb = esp_camera_fb_get();
+    camera_fb_t *fb = NULL;
+    for (int retry = 0; retry < 3 && !fb; retry++) {
+        fb = esp_camera_fb_get();
+        if (!fb) {
+            vTaskDelay(pdMS_TO_TICKS(25));
+        }
+    }
+
     if (!fb) {
         ESP_LOGE(TAG, "Camera capture failed for prediction");
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
+        httpd_resp_set_status(req, "503 Service Unavailable");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+        return httpd_resp_sendstr(req, "{\"status\":\"error\",\"message\":\"Camera busy\"}");
     }
 
     MangosteenResult mres = classifyMangosteen(fb);
